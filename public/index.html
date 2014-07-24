@@ -1,3 +1,4 @@
+<!--
 /*
  * Copyright 2014, Gregg Tavares.
  * All rights reserved.
@@ -28,27 +29,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-"use strict";
-
-var express = require('express');
-var http = require('http');
-var path = require('path');
-
-var app = express();
-
-var g = {
-  port: 1337,
-  address: '127.0.0.1',
-};
-
-app.use('/', express.static(path.join(__dirname, "public")));
-//app.get(/^\/games\/(.*?)\//, sendGameRequestedFile);
-//app.get(/.*/, sendSystemRequestedFile);
-//app.post(/.*/, handlePOST);
-
-var server = http.createServer(app);
-server.listen(g.port, g.address);
-
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="format-detection" content="telephone=no" />
+  <title>HappyFunTimes Finder</title>
+  <link rel="stylesheet" href="css/main.css">
+  <script data-main="scripts/scanforserver.js" src="scripts/require.js"></script>
+</head>
+<body>
+  <div class="progress" id="unity3d-msg">
+    <div>
+      <div>
+        <h1>Looking for HappyFunTimes</h1>
+        <blockquote>
+          <div class="progress-bar" id="scan-progress"></div>
+          <div class="hidden">
+            Could not find HappyFunTimes &#9785;
+          </div>
+        </blockquote>
+        <div class="hidden button-like"><a href="http://greggman.github.io/HappyFunTimes/">What is this?</a></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
 
 

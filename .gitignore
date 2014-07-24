@@ -1,0 +1,10 @@
+syntax: glob
+node_modules
+Thumbs.db
+thumbs.db
+*~
+.DS_Store
+*.orig
+*.pyc
+
+

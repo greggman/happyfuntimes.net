@@ -28,27 +28,49 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 "use strict";
 
-var express = require('express');
-var http = require('http');
-var path = require('path');
+define(function() {
+  // This is an object, that way you set the name just once so calling set or get you
+  // don't have to worry about getting the name wrong.
+  //
+  //     var fooCookie = new Cookie("foo");
+  //     var value = fooCookie.get();
+  //     fooCookie.set(newValue);
+  //     fooCookie.erase();
+  var Cookie = function(name, opt_path) {
+    var path = opt_path || "/";
+    this.set = function(value, opt_days) {
+      var expires = "";
+      if (opt_days !== undefined) {
+        var date = new Date();
+        date.setTime(Date.now() + (opt_days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toGMTString();
+      }
+      var cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + expires + "; path=" + path;
+      document.cookie = cookie;
+    };
 
-var app = express();
+    this.get = function() {
+      var nameEQ = encodeURIComponent(name) + "=";
+      var ca = document.cookie.split(';');
+      for(var i = 0; i < ca.length; ++i) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') {
+          c = c.substring(1,c.length);
+        }
+        if (c.indexOf(nameEQ) == 0) {
+          return decodeURIComponent(c.substring(nameEQ.length, c.length));
+        }
+      }
+    };
 
-var g = {
-  port: 1337,
-  address: '127.0.0.1',
-};
+    this.erase = function() {
+      document.cookie = this.set(" ", -1);
+    };
+  };
 
-app.use('/', express.static(path.join(__dirname, "public")));
-//app.get(/^\/games\/(.*?)\//, sendGameRequestedFile);
-//app.get(/.*/, sendSystemRequestedFile);
-//app.post(/.*/, handlePOST);
-
-var server = http.createServer(app);
-server.listen(g.port, g.address);
-
+  return Cookie;
+});
 
 

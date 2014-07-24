@@ -31,24 +31,21 @@
 
 "use strict";
 
-var express = require('express');
-var http = require('http');
-var path = require('path');
+var main = function(Cookie, Misc) {
 
-var app = express();
+  var args = Misc.parseUrlQuery();
+  var nameCookie = new Cookie("name");
 
-var g = {
-  port: 1337,
-  address: '127.0.0.1',
+  if (args.name) {
+    nameCookie.set(args.name, 700);
+  }
 };
 
-app.use('/', express.static(path.join(__dirname, "public")));
-//app.get(/^\/games\/(.*?)\//, sendGameRequestedFile);
-//app.get(/.*/, sendSystemRequestedFile);
-//app.post(/.*/, handlePOST);
-
-var server = http.createServer(app);
-server.listen(g.port, g.address);
-
-
+// Start the main app logic.
+requirejs(
+  [ './cookies',
+    './misc',
+  ],
+  main
+);
 

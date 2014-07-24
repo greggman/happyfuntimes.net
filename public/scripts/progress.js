@@ -28,27 +28,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 "use strict";
 
-var express = require('express');
-var http = require('http');
-var path = require('path');
+define(function() {
 
-var app = express();
+  /**
+   * @constructor
+   * @param {!HTMLElement} element Element to turn into progress
+   *        bar.
+   */
+  var ProgressBar = function(element) {
+    var progressBar = document.createElement("div");
+    element.appendChild(progressBar);
 
-var g = {
-  port: 1337,
-  address: '127.0.0.1',
-};
+    /**
+     * Sets the progress bar size.
+     * @param {number} amount The amount of progress where 0 = no
+     *        progress and 1 = completed. 0.5 = half completed.
+     */
+    this.set = function(amount) {
+      progressBar.style.width = (Math.max(0, Math.min(1, amount)) * 100 | 0) + "%";
+    };
 
-app.use('/', express.static(path.join(__dirname, "public")));
-//app.get(/^\/games\/(.*?)\//, sendGameRequestedFile);
-//app.get(/.*/, sendSystemRequestedFile);
-//app.post(/.*/, handlePOST);
+    this.set(0);
+  };
 
-var server = http.createServer(app);
-server.listen(g.port, g.address);
-
-
+  return ProgressBar;
+});
 

@@ -1,3 +1,4 @@
+<!--
 /*
  * Copyright 2014, Gregg Tavares.
  * All rights reserved.
@@ -28,27 +29,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-"use strict";
-
-var express = require('express');
-var http = require('http');
-var path = require('path');
-
-var app = express();
-
-var g = {
-  port: 1337,
-  address: '127.0.0.1',
-};
-
-app.use('/', express.static(path.join(__dirname, "public")));
-//app.get(/^\/games\/(.*?)\//, sendGameRequestedFile);
-//app.get(/.*/, sendSystemRequestedFile);
-//app.post(/.*/, handlePOST);
-
-var server = http.createServer(app);
-server.listen(g.port, g.address);
-
-
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HappyFunTimes Name Saver</title>
+  <script data-main="scripts/savename.js" src="scripts/require.js"></script>
+</head>
+<body>
+NameSaved
+</body>
+</html>
 

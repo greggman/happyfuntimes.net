@@ -1,0 +1,29 @@
+{
+  "name": "happyfuntimes.net",
+  "version": "0.0.2",
+  "description": "Redirects players to their local happyfuntimes game",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/greggman/happyfuntimes.net.git"
+  },
+  "keywords": [
+    "happyfuntimes",
+    "games",
+    "gaming",
+    "party"
+  ],
+  "author": "Gregg Tavares",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/greggman/happyfuntimes.net/issues"
+  },
+  "homepage": "https://github.com/greggman/happyfuntimes.net",
+  "dependencies": {
+    "express": "^4.6.1"
+  }
+}
