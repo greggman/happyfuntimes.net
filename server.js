@@ -31,52 +31,14 @@
 
 "use strict";
 
-var express = require('express');
-var gameCache = new (require('./lib/gamecache'));
-var http = require('http');
-var path = require('path');
+var server = require('./lib/server');
 var winston = require('winston');
-
-var app = express();
 
 var g = {
   port: 1337,
   address: '127.0.0.1',
 };
 
-var handleInform = function(req, res) {
-  var ip = req.headers['x-forwarded-for'] ||
-       req.connection.remoteAddress ||
-       req.socket.remoteAddress ||
-       req.connection.socket.remoteAddress;
-  if (!ip) {
-    winston.log('info', "no public ip address", { "usage-agent": req.headers['user-agent']});
-    res.json(400, {msg: "missing public ip address"});
-    return;
-  }
-  var hftIp = req.query.hftip;
-  if (!hftIp) {
-    winston.log('info', "no hft ip address", { "usage-agent": req.headers['user-agent']});
-    res.json(400, {msg: "missing hft ip address"});
-    return;
-  }
-
-  if (ip.indexOf(',')) {
-    ip = ip.split(",")[0];
-  }
-
-  winston.log('info', "added game: ", {ip: ip, hftIp: hftIp});
-  gameCache.add(ip, hftIp);
-  res.json(200, {ip: ip});
-};
-
-app.use('/', express.static(path.join(__dirname, "public")));
-app.post('/api/inform', handleInform);
-//app.get(/^\/games\/(.*?)\//, sendGameRequestedFile);
-//app.get(/.*/, sendSystemRequestedFile);
-
-var server = http.createServer(app);
 server.listen(g.port, g.address);
-
 winston.log('info', "started");
 

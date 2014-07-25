@@ -39,12 +39,16 @@ describe('GameCache', function() {
 
     var externalIp = "1.2.3.4";
     var internalIp = "4.5.6.7";
+    var internalPort = "2345";
+    var expectedResult = internalIp + ":" + internalPort;
 
-    cache.addExternalIpToInternalIpGame(externalIp, internalIp);
+    cache.addExternalIpToInternalIpGame(externalIp, internalIp, internalPort);
 
     var ips = cache.getInternalIpsForExternalIp(externalIp);
     ips.length.should.equal(1);
-    ips[0].should.equal(internalIp);
+    ips[0].should.equal(expectedResult);
+
+    cache.getInfo().numGames.should.equal(1);
 
     cache.destroy();
   });
@@ -54,15 +58,21 @@ describe('GameCache', function() {
 
     var externalIp = "1.2.3.4";
     var internalIp1 = "4.5.6.7";
+    var internalPort1 = "2345";
     var internalIp2 = "5.6.7.8";
+    var internalPort2 = "3456";
+    var expectedResult1 = internalIp1 + ":" + internalPort1;
+    var expectedResult2 = internalIp2 + ":" + internalPort2;
 
-    cache.addExternalIpToInternalIpGame(externalIp, internalIp1);
-    cache.addExternalIpToInternalIpGame(externalIp, internalIp2);
+    cache.addExternalIpToInternalIpGame(externalIp, internalIp1, internalPort1);
+    cache.addExternalIpToInternalIpGame(externalIp, internalIp2, internalPort2);
 
     var ips = cache.getInternalIpsForExternalIp(externalIp);
     ips.length.should.equal(2);
-    ips.should.containEql(internalIp1);
-    ips.should.containEql(internalIp2);
+    ips.should.containEql(expectedResult1);
+    ips.should.containEql(expectedResult2);
+
+    cache.getInfo().numGames.should.equal(2);
 
     cache.destroy();
   });
@@ -72,13 +82,38 @@ describe('GameCache', function() {
 
     var externalIp = "1.2.3.4";
     var internalIp = "4.5.6.7";
+    var internalPort = "2345";
+    var expectedResult = internalIp + ":" + internalPort;
 
-    cache.addExternalIpToInternalIpGame(externalIp, internalIp);
-    cache.addExternalIpToInternalIpGame(externalIp, internalIp);
+    cache.addExternalIpToInternalIpGame(externalIp, internalIp, internalPort);
+    cache.addExternalIpToInternalIpGame(externalIp, internalIp, internalPort);
 
     var ips = cache.getInternalIpsForExternalIp(externalIp);
     ips.length.should.equal(1);
-    ips.should.containEql(internalIp);
+    ips.should.containEql(expectedResult);
+
+    cache.getInfo().numGames.should.equal(1);
+
+    cache.destroy();
+  });
+
+  it('test we can add the same address twice with different ports, returns newest port', function() {
+    var cache = new GameCache();
+
+    var externalIp = "1.2.3.4";
+    var internalIp = "4.5.6.7";
+    var internalPort1 = "2345";
+    var internalPort2 = "3456";
+    var expectedResult = internalIp + ":" + internalPort2;
+
+    cache.addExternalIpToInternalIpGame(externalIp, internalIp, internalPort1);
+    cache.addExternalIpToInternalIpGame(externalIp, internalIp, internalPort2);
+
+    var ips = cache.getInternalIpsForExternalIp(externalIp);
+    ips.length.should.equal(1);
+    ips.should.containEql(expectedResult);
+
+    cache.getInfo().numGames.should.equal(1);
 
     cache.destroy();
   });
@@ -89,7 +124,8 @@ describe('GameCache', function() {
     var externalIp = "1.2.3.4";
 
     var ips = cache.getInternalIpsForExternalIp(externalIp);
-    (ips === undefined).should.be.true;
+    ips.should.be.empty;
+    cache.getInfo().numGames.should.equal(0);
 
     cache.destroy();
   });
@@ -120,31 +156,38 @@ describe('GameCache', function() {
 
       var externalIp = "1.2.3.4";
       var internalIp1 = "4.5.6.7";
+      var internalPort1 = "2345";
       var internalIp2 = "5.6.7.8";
+      var internalPort2 = "3456";
+      var expectedResult1 = internalIp1 + ":" + internalPort1;
+      var expectedResult2 = internalIp2 + ":" + internalPort2;
 
       currentTime = 1;
-      cache.addExternalIpToInternalIpGame(externalIp, internalIp1);
+      cache.addExternalIpToInternalIpGame(externalIp, internalIp1, internalPort1);
       currentTime = 10;
-      cache.addExternalIpToInternalIpGame(externalIp, internalIp2);
+      cache.addExternalIpToInternalIpGame(externalIp, internalIp2, internalPort2);
 
       var ips = cache.getInternalIpsForExternalIp(externalIp);
       ips.length.should.equal(2);
-      ips.should.containEql(internalIp1);
-      ips.should.containEql(internalIp2);
+      ips.should.containEql(expectedResult1);
+      ips.should.containEql(expectedResult2);
+      cache.getInfo().numGames.should.equal(2);
 
       currentTime = 8;
       intervalFn();
 
       var ips = cache.getInternalIpsForExternalIp(externalIp);
       ips.length.should.equal(1);
-      ips.should.not.containEql(internalIp1);
-      ips.should.containEql(internalIp2);
+      ips.should.not.containEql(expectedResult1);
+      ips.should.containEql(expectedResult2);
+      cache.getInfo().numGames.should.equal(1);
 
       currentTime = 18;
       intervalFn();
 
       var ips = cache.getInternalIpsForExternalIp(externalIp);
-      (ips === undefined).should.be.true;
+      ips.should.be.empty;
+      cache.getInfo().numGames.should.equal(0);
     });
 
     it('test addresses reset expiration time if added again', function() {
@@ -158,41 +201,50 @@ describe('GameCache', function() {
 
       var externalIp = "1.2.3.4";
       var internalIp1 = "4.5.6.7";
+      var internalPort1 = "2345";
       var internalIp2 = "5.6.7.8";
+      var internalPort2 = "3456";
+      var expectedResult1 = internalIp1 + ":" + internalPort1;
+      var expectedResult2 = internalIp2 + ":" + internalPort2;
 
       currentTime = 1;
-      cache.addExternalIpToInternalIpGame(externalIp, internalIp1);
+      cache.addExternalIpToInternalIpGame(externalIp, internalIp1, internalPort1);
       currentTime = 10;
-      cache.addExternalIpToInternalIpGame(externalIp, internalIp2);
+      cache.addExternalIpToInternalIpGame(externalIp, internalIp2, internalPort2);
       currentTime = 20;
-      cache.addExternalIpToInternalIpGame(externalIp, internalIp1);
+      cache.addExternalIpToInternalIpGame(externalIp, internalIp1, internalPort1);
+      cache.getInfo().numGames.should.equal(2);
 
       var ips = cache.getInternalIpsForExternalIp(externalIp);
       ips.length.should.equal(2);
-      ips.should.containEql(internalIp1);
-      ips.should.containEql(internalIp2);
+      ips.should.containEql(expectedResult1);
+      ips.should.containEql(expectedResult2);
+      cache.getInfo().numGames.should.equal(2);
 
       currentTime = 8;
       intervalFn();
 
       var ips = cache.getInternalIpsForExternalIp(externalIp);
       ips.length.should.equal(2);
-      ips.should.containEql(internalIp1);
-      ips.should.containEql(internalIp2);
+      ips.should.containEql(expectedResult1);
+      ips.should.containEql(expectedResult2);
+      cache.getInfo().numGames.should.equal(2);
 
       currentTime = 18;
       intervalFn();
 
       var ips = cache.getInternalIpsForExternalIp(externalIp);
       ips.length.should.equal(1);
-      ips.should.not.containEql(internalIp2);
-      ips.should.containEql(internalIp1);
+      ips.should.not.containEql(expectedResult2);
+      ips.should.containEql(expectedResult1);
+      cache.getInfo().numGames.should.equal(1);
 
       currentTime = 28;
       intervalFn();
 
       var ips = cache.getInternalIpsForExternalIp(externalIp);
-      (ips === undefined).should.be.true;
+      ips.should.be.empty;
+      cache.getInfo().numGames.should.equal(0);
 
     });
   });
