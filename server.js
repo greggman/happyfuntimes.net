@@ -40,5 +40,6 @@ var g = {
 };
 
 server.listen(g.port, g.address);
-winston.log('info', "started");
+server.monitor();
+winston.log('info', "started listening: ", g);
 
