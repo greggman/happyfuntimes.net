@@ -290,7 +290,8 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
 
   var startScan = function(ipAddress, fn) {
     ++numRequestsInProgress;
-    makeHFTPingRequest(ipAddress + ":" + port, fn(url, ipAddress));
+    var ipAndPort = ipAddress + ":" + port;
+    makeHFTPingRequest(ipAndPort, fn("http://" + ipAndPort, ipAddress));
   };
 
   var doNextThing = function() {
