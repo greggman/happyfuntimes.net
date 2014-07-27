@@ -94,7 +94,7 @@ describe("server", function() {
     }).then(done, done);
   });
 
-  it("getGames should return 1 ips if 2 informs with same ip different ports", function(done) {
+  it("getGames should return 2 ips if 2 informs with same ip different ports", function(done) {
     postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=2345").then(function(res) {
       res.body.ip.length.should.be.above(6);
       return postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=5432");
@@ -103,8 +103,9 @@ describe("server", function() {
       return postP("http://localhost:8080/api/getgames");
     }).then(function(res) {
       res.body.should.be.instanceof(Array);
-      res.body.should.be.length(1);
+      res.body.should.be.length(2);
       res.body.should.containEql("1.2.3.4:5432");
+      res.body.should.containEql("1.2.3.4:2345");
     }).then(done, done);
   });
 
