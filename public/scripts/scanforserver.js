@@ -31,29 +31,68 @@
 
 "use strict";
 
+// URL options:
+//    debug=true    : contact local host, print stuff
+//    verbose=true  : print stuff
+//    local=true    : contact local.superhappyfuntimes.net
+//    scan=false    : don't scan
+
 var main = function(Cookie, IO, IPUtils, ProgressBar) {
   var $ = function(id) {
     return document.getElementById(id);
   };
 
-  var debug = window.location.href.indexOf("debug") > -1;
-  var local = window.location.href.indexOf("local") > -1;
-  var log = debug ? console.log.bind(console) : function() { };
+
+  // Reads the query values from a URL like string.
+  // @param {String} url URL like string eg. http://foo?key=value
+  // @param {Object=} opt_obj Object to attach key values to
+  // @return {Object} Object with key values from URL
+  var parseUrlQueryString = function(str, opt_obj) {
+    var dst = opt_obj || {};
+    try {
+      var q = str.indexOf("?");
+      var e = str.indexOf("#");
+      if (e < 0) {
+        e = str.length;
+      }
+      var query = str.substring(q + 1, e);
+      var pairs = query.split("&");
+      for (var ii = 0; ii < pairs.length; ++ii) {
+        var keyValue = pairs[ii].split("=");
+        var key = keyValue[0];
+        var value = decodeURIComponent(keyValue[1]);
+        dst[key] = value;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return dst;
+  };
+
+  // Reads the query values from the current URL.
+  // @param {Object=} opt_obj Object to attach key values to
+  // @return {Object} Object with key values from URL
+  var parseUrlQuery = function(opt_obj) {
+    return parseUrlQueryString(window.location.href, opt_obj);
+  };
+
+  var g = parseUrlQuery();
+  var log = (g.debug || g.verbose) ? console.log.bind(console) : function() { };
 
   var getGamesUrl = "http://happyfuntimes.net/api/getgames";
-  if (debug) {
+  if (g.debug) {
     getGamesUrl = "http://localhost:1337/api/getgames";
   }
-  if (local) {
+  if (g.local) {
     getGamesUrl = "http://local.happyfuntimes.net/api/getgames";
   }
   var nameCookie = new Cookie("name");
   var startingAddress = 1;
-  var endingAddress = debug ? 5 : 254;
+  var endingAddress = g.debug ? 5 : 254;
   var numRequestsInProgress = 0;
   var maxSimultaneousRequests = 4;
   var timeout = 400; // in ms
-  var port = 8080;
+  var port = 18679;
   var found = false;
 
   var fastScanAddresses = [];
@@ -90,7 +129,9 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
     if (err) {
       console.error(err);
       // start scanning
-      IPUtils.getLocalIpAddresses(scan);
+      if (g.scan !== false || g.scan === "false") {
+        IPUtils.getLocalIpAddresses(scan);
+      }
       return;
     }
 
@@ -172,7 +213,7 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
     "192.168.254.0",  // Flowpoint
   ];
 
-  if (debug) {
+  if (g.debug) {
     commonIpAddresses = [
       "192.168.0.0",
       "10.0.0.0",
@@ -209,7 +250,7 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
     var name = nameCookie.get() || "";
     var url = baseUrl + "/enter-name.html?fromHFTNet=true&name=" + encodeURIComponent(name);
     log("**GOTO** url: " + url);
-    if (!debug) {
+    if (!g.debug) {
       window.location.href = url;
     }
   };
