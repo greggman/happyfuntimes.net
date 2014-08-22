@@ -138,7 +138,7 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
   };
 
   var getIpAddress = function() {
-    if (g.scan !== false || g.scan !== "false") {
+    if (g.scan !== false && g.scan !== "false") {
       IPUtils.getLocalIpAddresses(scan);
     }
   };
