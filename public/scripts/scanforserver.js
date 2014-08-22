@@ -36,6 +36,7 @@
 //    verbose=true  : print stuff
 //    local=true    : contact local.superhappyfuntimes.net
 //    scan=false    : don't scan
+//    go=false      : don't go to url
 
 var main = function(Cookie, IO, IPUtils, ProgressBar) {
   var $ = function(id) {
@@ -129,13 +130,17 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
     if (err) {
       console.error(err);
       // start scanning
-      if (g.scan !== false || g.scan === "false") {
-        IPUtils.getLocalIpAddresses(scan);
-      }
+      getIpAddress();
       return;
     }
 
     checkGamesRunning(obj);
+  };
+
+  var getIpAddress = function() {
+    if (g.scan !== false || g.scan !== "false") {
+      IPUtils.getLocalIpAddresses(scan);
+    }
   };
 
   /**
@@ -153,7 +158,7 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
       if (numChecked == ipAddresses.length) {
         if (runningHFTs.length == 0) {
           // There was nothing, start scanning
-          IPUtils.getLocalIpAddresses(scan);
+          getIpAddress();
         } else if (runningHFTs.length == 1) {
           goToUrl("http://" + runningHFTs[0]);
         } else {
@@ -250,7 +255,7 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
     var name = nameCookie.get() || "";
     var url = baseUrl + "/enter-name.html?fromHFTNet=true&name=" + encodeURIComponent(name);
     log("**GOTO** url: " + url);
-    if (!g.debug) {
+    if (!g.debug && g.go !== false && g.go !== "false") {
       window.location.href = url;
     }
   };
