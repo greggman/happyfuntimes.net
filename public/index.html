@@ -41,7 +41,7 @@
   <meta name="MobileOptimized" content="320">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
   <meta name="format-detection" content="telephone=no" />
-  <title>HappyFunTimes Finder</title>
+  <title>HappyFunTimes Redirector</title>
   <link rel="stylesheet" href="css/main.css">
   <script data-main="scripts/scanforserver.js" src="scripts/require.js"></script>
 </head>
@@ -53,14 +53,36 @@
         <blockquote>
           <div class="progress-bar" id="scan-progress"></div>
           <div class="hidden">
-            Could not find HappyFunTimes &#9785;
+            <p>
+              Could not find HappyFunTimes &#9785;
+            </p>
+            <p>
+              Are you sure you're connected to the same
+              WiFi as the game?
+            </p>
           </div>
         </blockquote>
-        <div class="hidden button-like"><a href="http://greggman.github.io/HappyFunTimes/">What is this?</a></div>
+        <div class="hidden">
+          <div class="button-like"><a href="http://happyfuntimes.net/">Try Again</a></div>
+          <div>
+            &nbsp;
+          </div>
+          <div class="button-like"><a href="http://superhappyfuntimes.net/about/">What is this?</a></div>
+        </div>
       </div>
     </div>
   </div>
 </body>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-51764205-3', 'auto');
+  ga('send', 'pageview');
+
+</script>
 </html>
 
 

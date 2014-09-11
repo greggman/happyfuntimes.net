@@ -123,15 +123,38 @@ a {
     animation: animate-stripes 1s linear infinite;
 }
 
-/* Smartphones (portrait and landscape) ----------- */
-@media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+/* Smartphones (portrait) ----------- */
+@media only screen and (min-device-width : 320px) {
 /* Styles */
     html, body {
-        font-size: x-small;
+        font-size: small;
+    }
+    blockquote {
+        padding: 0px;
+        margin: 0px;
+        font-size: medium;
     }
     .progress-bar {
         height: 4em;
     }
+    .button-like {
+        font-size: large;
+    }
 }
 
+/* Smartphones (landscape) ----------- */
+@media only screen and (min-width : 321px) {
+    html, body {
+        font-size: xx-small;
+    }
+    .progress-bar {
+        display: none;
+    }
+    blockquote {
+        font-size: small;
+    }
+    h1 {
+        font-size: small;
+    }
+}
 

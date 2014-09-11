@@ -103,6 +103,12 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
 
   var progressBar = new ProgressBar($("scan-progress"));
 
+  var handleCouldNotFind = function() {
+    Array.prototype.forEach.call(document.querySelectorAll(".hidden"), function(elem) {
+      elem.style.display = "block";
+    });
+  };
+
   /**
    * should call this after every request as it not only updates
    * the progress bar but also accounting of requests.
@@ -113,11 +119,7 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
     progressBar.set(totalThingsDone / totalThingsToDo);
 
     if (!found && totalThingsDone >= totalThingsToDo) {
-      var elements = document.querySelectorAll(".hidden");
-      for (var ii = 0; ii < elements.length; ++ii) {
-        var elem = elements[ii];
-        elem.style.display = "block";
-      }
+      handleCouldNotFind();
     }
   };
 
@@ -138,8 +140,11 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
   };
 
   var getIpAddress = function() {
-    if (g.scan !== false && g.scan !== "false") {
+    //if (g.scan !== false && g.scan !== "false") {
+    if (g.scan) {
       IPUtils.getLocalIpAddresses(scan);
+    } else {
+      handleCouldNotFind();
     }
   };
 
