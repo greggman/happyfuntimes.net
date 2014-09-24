@@ -92,7 +92,7 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
   var endingAddress = g.debug ? 5 : 254;
   var numRequestsInProgress = 0;
   var maxSimultaneousRequests = 4;
-  var timeout = 400; // in ms
+  var timeout = 2000; // in ms
   var port = 18679;
   var found = false;
 
