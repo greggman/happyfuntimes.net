@@ -44,11 +44,14 @@
   <title>HappyFunTimes Redirector</title>
   <link rel="stylesheet" href="css/main.css">
   <script data-main="scripts/scanforserver.js" src="scripts/require.js"></script>
+  <script id="hft-button-template" type="not-js">
+    <a class="button-like" href="%(url)s">%(name)s</a>
+  </script>
 </head>
 <body>
   <div class="progress" id="unity3d-msg">
     <div>
-      <div>
+      <div id="looking">
         <h1>Looking for HappyFunTimes</h1>
         <blockquote>
           <div class="progress-bar" id="scan-progress"></div>
@@ -63,11 +66,16 @@
           </div>
         </blockquote>
         <div class="hidden">
-          <div class="button-like"><a href="http://happyfuntimes.net/">Try Again</a></div>
+          <a class="button-like" href="http://happyfuntimes.net/">Try Again</a>
           <div>
             &nbsp;
           </div>
-          <div class="button-like"><a href="http://superhappyfuntimes.net/about/">What is this?</a></div>
+          <a class="button-like" href="http://superhappyfuntimes.net/about/">What is this?</a>
+        </div>
+      </div>
+      <div id="multiple-hfts">
+        <h1>Choose A System</h1>
+        <div id="systems">
         </div>
       </div>
     </div>
