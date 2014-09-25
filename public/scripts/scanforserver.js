@@ -38,11 +38,17 @@
 //    scan=false    : don't scan
 //    go=false      : don't go to url
 
-var main = function(Cookie, IO, IPUtils, ProgressBar) {
+// Start the main app logic.
+requirejs(
+  [ './cookies',
+    './io',
+    './iputils',
+    './progress',
+    './strings',
+  ], function(Cookie, IO, IPUtils, ProgressBar, Strings) {
   var $ = function(id) {
     return document.getElementById(id);
   };
-
 
   // Reads the query values from a URL like string.
   // @param {String} url URL like string eg. http://foo?key=value
@@ -148,6 +154,10 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
     }
   };
 
+  var makeUrlFromHFT = function(hft) {
+    return "http://" + hft.ipAddress;
+  };
+
   /**
    * HFT send back the list of games running on a certain network.
    * Check if they all respond. If there's only one go to it.
@@ -165,7 +175,7 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
           // There was nothing, start scanning
           getIpAddress();
         } else if (runningHFTs.length == 1) {
-          goToUrl("http://" + runningHFTs[0]);
+          goToUrl(makeUrlFromHFT(runningHFTs[0]));
         } else {
           askPlayerWhichHFT(runningHFTs);
         }
@@ -177,7 +187,10 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
         log("ping hft: " + ipAddress);
         return function(err, obj) {
           if (!err) {
-            runningHFTs.push(ipAddress);
+            runningHFTs.push({
+              ipAddress: ipAddress,
+              data: obj,
+            });
           }
           checkNextHFT();
         };
@@ -187,7 +200,18 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
   };
 
   var askPlayerWhichHFT = function(runningHFTs) {
-    log("ask player to choose hft: " + runningHFTs);
+    log("ask player to choose hft: " + JSON.stringify(runningHFTs, undefined, "  "));
+    $("looking").style.display = "none";
+    var template = $("hft-button-template").text;
+    var html = runningHFTs.map(function(hft, ndx) {
+      return Strings.replaceParams(template, {
+        id: "game-" + ndx,
+        url: makeUrlFromHFT(hft),
+        name: hft.data.serverName || "*unknown*",
+      });
+    });
+    $("multiple-hfts").style.display = "block";
+    $("systems").innerHTML = html.join("\n");
   };
 
   log("checking: " + getGamesUrl);
@@ -361,16 +385,7 @@ var main = function(Cookie, IO, IPUtils, ProgressBar) {
       doNextThing();
     }
   };
-};
+});
 
-// Start the main app logic.
-requirejs(
-  [ './cookies',
-    './io',
-    './iputils',
-    './progress',
-  ],
-  main
-);
 
 
