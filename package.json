@@ -30,8 +30,11 @@
     "winston-loggly": "^1.0.1"
   },
   "devDependencies": {
-    "should": "^4.0.4",
+    "almond": "^0.3.0",
+    "html-minifier": "^0.6.9",
     "mocha": "^1.21.0",
-    "request": "^2.39.0"
+    "request": "^2.39.0",
+    "requirejs": "^2.1.15",
+    "should": "^4.0.4"
   }
 }
