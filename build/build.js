@@ -88,6 +88,7 @@ files.map(function(file) {
     console.log("read : " + srcName);
     var html = fs.readFileSync(srcName, {encoding: "utf-8"});
     var html = html.replace(cssRE, function(match, p1) {
+      console.log("found: " + p1);
       return "<style>\n" + fs.readFileSync(path.join(srcBase, p1), {encoding: "utf-8"}) + "\n</style>\n";
     });
     var m = scriptRE.exec(html);
