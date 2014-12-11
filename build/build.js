@@ -78,7 +78,7 @@ var scriptRE = /<script data-main="(.*?)" src="scripts\/require.js"><\/script>/;
 var cssRE    = /<link rel="stylesheet" href="(.*?)">/g;
 
 // Copy almond out of node_modules because I can't effing figure out how to set r.js's config
-// without that :(
+// in such a way that I can leave it where it is >:(
 fs.writeFileSync(path.join(srcBase, "scripts/almond.js"),
     fs.readFileSync(path.join(__dirname, "../node_modules/almond/almond.js"), {encoding: "utf-8"}));
 
