@@ -36,9 +36,10 @@ var request = require('request').defaults({ json: true });
 var server = require('../lib/server');
 var should = require('should');
 
-var postP = function(url) {
+var postP = function(url, body) {
+  body = body || "";
   return new Promise(function(fulfill, reject) {
-    request.post(url, function(err, res, body) {
+    request.post(url, {json: true, body: body}, function(err, res, body) {
       if (err || res.statusCode != 200) {
         reject(err || res.body.msg);
       } else {
@@ -61,92 +62,202 @@ describe("server", function() {
     server.clearGameCache();
   });
 
-  it("getGames should return no ips", function(done) {
-    postP("http://localhost:8080/api/getgames").then(function(res) {
-      res.body.should.be.instanceof(Array);
-      res.body.should.be.empty;
-    }).then(done, done);
+  describe("inform", function() {
+
+    it("getGames should return no ips", function(done) {
+      postP("http://localhost:8080/api/getgames").then(function(res) {
+        res.body.should.be.instanceof(Array);
+        res.body.should.be.empty;
+      }).then(done, done);
+    });
+
+    it("getGames should return ip if 1 inform", function(done) {
+      postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=4567").then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames");
+      }).then(function(res) {
+        res.body.should.be.instanceof(Array);
+        res.body.should.be.length(1);
+        res.body.should.containEql("1.2.3.4:4567");
+      }).then(done, done);
+    });
+
+    it("getGames should return 2 ips if 2 informs", function(done) {
+      postP("http://localhost:8080/api/inform?hftip=5.6.7.8&hftport=2345").then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=5432");
+      }).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames");
+      }).then(function(res) {
+        res.body.should.be.instanceof(Array);
+        res.body.should.be.length(2);
+        res.body.should.containEql("1.2.3.4:5432");
+        res.body.should.containEql("5.6.7.8:2345");
+      }).then(done, done);
+    });
+
+    it("getGames should return 2 ips if 2 informs with same ip different ports", function(done) {
+      postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=2345").then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=5432");
+      }).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames");
+      }).then(function(res) {
+        res.body.should.be.instanceof(Array);
+        res.body.should.be.length(2);
+        res.body.should.containEql("1.2.3.4:5432");
+        res.body.should.containEql("1.2.3.4:2345");
+      }).then(done, done);
+    });
+
+    it("fails if missing ip address", function(done) {
+      postP("http://localhost:8080/api/inform?hftport=2345").then(function(res) {
+        (false).should.be.true;  // error if we got here
+      }, function(err) {
+        (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
+
+    it("fails if bad ip address", function(done) {
+      postP("http://localhost:8080/api/inform?hftip=1234&hftport=2345").then(function(res) {
+        (false).should.be.true;  // error if we got here
+      }, function(err) {
+        (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
+
+    it("fails if missing port", function(done) {
+      postP("http://localhost:8080/api/inform?hftip=1.2.3.4").then(function(res) {
+        (false).should.be.true;  // error if we got here
+      }, function(err) {
+        (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
+
+    it("fails if missing port", function(done) {
+      postP("http://localhost:8080/api/inform?hftip=1.2.3.4").then(function(res) {
+        (false).should.be.true;  // error if we got here
+      }, function(err) {
+        (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
+
+    it("fails if bad port", function(done) {
+      postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=123456").then(function(res) {
+        (false).should.be.true;  // error if we got here
+      }, function(err) {
+        (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
   });
 
-  it("getGames should return ip if 1 inform", function(done) {
-    postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=4567").then(function(res) {
-      res.body.ip.length.should.be.above(6);
-      return postP("http://localhost:8080/api/getgames");
-    }).then(function(res) {
-      res.body.should.be.instanceof(Array);
-      res.body.should.be.length(1);
-      res.body.should.containEql("1.2.3.4:4567");
-    }).then(done, done);
-  });
+  describe("inform2", function() {
 
-  it("getGames should return 2 ips if 2 informs", function(done) {
-    postP("http://localhost:8080/api/inform?hftip=5.6.7.8&hftport=2345").then(function(res) {
-      res.body.ip.length.should.be.above(6);
-      return postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=5432");
-    }).then(function(res) {
-      res.body.ip.length.should.be.above(6);
-      return postP("http://localhost:8080/api/getgames");
-    }).then(function(res) {
-      res.body.should.be.instanceof(Array);
-      res.body.should.be.length(2);
-      res.body.should.containEql("1.2.3.4:5432");
-      res.body.should.containEql("5.6.7.8:2345");
-    }).then(done, done);
-  });
+    it("getGames should return ip if 1 inform", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"], port: "4567"}).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames");
+      }).then(function(res) {
+        res.body.should.be.instanceof(Array);
+        res.body.should.be.length(1);
+        res.body.should.containEql("1.2.3.4:4567");
+      }).then(done, done);
+    });
 
-  it("getGames should return 2 ips if 2 informs with same ip different ports", function(done) {
-    postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=2345").then(function(res) {
-      res.body.ip.length.should.be.above(6);
-      return postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=5432");
-    }).then(function(res) {
-      res.body.ip.length.should.be.above(6);
-      return postP("http://localhost:8080/api/getgames");
-    }).then(function(res) {
-      res.body.should.be.instanceof(Array);
-      res.body.should.be.length(2);
-      res.body.should.containEql("1.2.3.4:5432");
-      res.body.should.containEql("1.2.3.4:2345");
-    }).then(done, done);
-  });
+    it("getGames should return 2 ips if 2 informs", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["5.6.7.8"], port:"2345"}).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"], port: "5432"});
+      }).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames");
+      }).then(function(res) {
+        res.body.should.be.instanceof(Array);
+        res.body.should.be.length(2);
+        res.body.should.containEql("1.2.3.4:5432");
+        res.body.should.containEql("5.6.7.8:2345");
+      }).then(done, done);
+    });
 
-  it("fails if missing ip address", function(done) {
-    postP("http://localhost:8080/api/inform?hftport=2345").then(function(res) {
-      (false).should.be.true;  // error if we got here
-    }, function(err) {
-      (true).should.be.true;  // success if we got here
-    }).then(done, done);
-  });
+    it("getGames should return 2 ips if on inform with 2 addresses", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["5.6.7.8", "1.2.3.4"], port:"2345"}).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames");
+      }).then(function(res) {
+        res.body.should.be.instanceof(Array);
+        res.body.should.be.length(2);
+        res.body.should.containEql("1.2.3.4:2345");
+        res.body.should.containEql("5.6.7.8:2345");
+      }).then(done, done);
+    });
 
-  it("fails if bad ip address", function(done) {
-    postP("http://localhost:8080/api/inform?hftip=1234&hftport=2345").then(function(res) {
-      (false).should.be.true;  // error if we got here
-    }, function(err) {
-      (true).should.be.true;  // success if we got here
-    }).then(done, done);
-  });
+    it("getGames should return 2 ips if 2 informs with same ip different ports", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"], port: "2345"}).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"], port: "5432"});
+      }).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames");
+      }).then(function(res) {
+        res.body.should.be.instanceof(Array);
+        res.body.should.be.length(2);
+        res.body.should.containEql("1.2.3.4:5432");
+        res.body.should.containEql("1.2.3.4:2345");
+      }).then(done, done);
+    });
 
-  it("fails if missing port", function(done) {
-    postP("http://localhost:8080/api/inform?hftip=1.2.3.4").then(function(res) {
-      (false).should.be.true;  // error if we got here
-    }, function(err) {
-      (true).should.be.true;  // success if we got here
-    }).then(done, done);
-  });
 
-  it("fails if missing port", function(done) {
-    postP("http://localhost:8080/api/inform?hftip=1.2.3.4").then(function(res) {
-      (false).should.be.true;  // error if we got here
-    }, function(err) {
-      (true).should.be.true;  // success if we got here
-    }).then(done, done);
-  });
+    it("fails if missing ip address", function(done) {
+      postP("http://localhost:8080/api/inform2", {port: "2345"}).then(function(res) {
+        (false).should.be.true;  // error if we got here
+      }, function(err) {
+        (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
 
-  it("fails if bad port", function(done) {
-    postP("http://localhost:8080/api/inform?hftip=1.2.3.4&hftport=123456").then(function(res) {
-      (false).should.be.true;  // error if we got here
-    }, function(err) {
-      (true).should.be.true;  // success if we got here
-    }).then(done, done);
+    it("fails if bad ip address", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses: ["1234"], port: "2345"}).then(function(res) {
+        (false).should.be.true;  // error if we got here
+      }, function(err) {
+        (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
+
+    it("fails if no addresses", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses: [], port: "2345"}).then(function(res) {
+        (false).should.be.true;  // error if we got here
+      }, function(err) {
+        (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
+
+    it("fails if missing port", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"]}).then(function(res) {
+        (false).should.be.true;  // error if we got here
+      }, function(err) {
+        (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
+
+    it("fails if missing port", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"]}).then(function(res) {
+        (false).should.be.true;  // error if we got here
+      }, function(err) {
+        (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
+
+    it("fails if bad port", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"], port: "123456"}).then(function(res) {
+        (false).should.be.true;  // error if we got here
+      }, function(err) {
+        (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
+
   });
 
 });
