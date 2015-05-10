@@ -29,6 +29,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+exports.build = function() {
+
 var fs        = require('fs');
 var minify    = require('html-minifier').minify;
 var path      = require('path');
@@ -82,44 +84,47 @@ var cssRE    = /<link rel="stylesheet" href="(.*?)">/g;
 fs.writeFileSync(path.join(srcBase, "scripts/almond.js"),
     fs.readFileSync(path.join(__dirname, "../node_modules/almond/almond.js"), {encoding: "utf-8"}));
 
-files.map(function(file) {
-  return function() {
-    var srcName = path.join(srcBase, file.filename);
-    console.log("read : " + srcName);
-    var html = fs.readFileSync(srcName, {encoding: "utf-8"});
-    var html = html.replace(cssRE, function(match, p1) {
-      console.log("found: " + p1);
-      return "<style>\n" + fs.readFileSync(path.join(srcBase, p1), {encoding: "utf-8"}) + "\n</style>\n";
-    });
-    var m = scriptRE.exec(html);
-    var script = m[1];
-    console.log("found: " + script);
-    return concatJS(path.join(srcBase, script))
-    .then(function(scriptContent) {
-      html = html.replace(scriptRE, "<script>\n" + scriptContent + "\n</script>\n");
-      html = minify(html, {
-        removeComments: true,
-        collapseWhitespace: true,
-        conservativeCollapse: true,
-        preserveLineBreaks: true,
-        minifyCSS: true,
-      });
 
-      var dstName = path.join(dstBase, file.filename);
-      fs.writeFileSync(dstName, html);
-      console.log("wrote: " + dstName);
-    })
-    .catch(function(err) {
-      console.error(err);
-    });
-  };
-}).reduce(function(cur, next){
-  return cur.then(next);
-}, Promise.resolve()).then(function(){
-  //all executed
-  console.log("--done--");
+return new Promise(function(resolve, reject) {
+  files.map(function(file) {
+    return function() {
+      var srcName = path.join(srcBase, file.filename);
+      console.log("read : " + srcName);
+      var html = fs.readFileSync(srcName, {encoding: "utf-8"});
+      var html = html.replace(cssRE, function(match, p1) {
+        console.log("found: " + p1);
+        return "<style>\n" + fs.readFileSync(path.join(srcBase, p1), {encoding: "utf-8"}) + "\n</style>\n";
+      });
+      var m = scriptRE.exec(html);
+      var script = m[1];
+      console.log("found: " + script);
+      return concatJS(path.join(srcBase, script))
+      .then(function(scriptContent) {
+        html = html.replace(scriptRE, "<script>\n" + scriptContent + "\n</script>\n");
+        html = minify(html, {
+          removeComments: true,
+          collapseWhitespace: true,
+          conservativeCollapse: true,
+          preserveLineBreaks: true,
+          minifyCSS: true,
+        });
+
+        var dstName = path.join(dstBase, file.filename);
+        fs.writeFileSync(dstName, html);
+        console.log("wrote: " + dstName);
+      })
+      .catch(function(err) {
+        console.error(err);
+        console.error(err.stack);
+      });
+    };
+  }).reduce(function(cur, next){
+    return cur.then(next);
+  }, Promise.resolve()).then(function(){
+    resolve();
+  });
 });
 
-
+};
 
 

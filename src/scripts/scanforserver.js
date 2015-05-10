@@ -29,6 +29,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*eslint no-use-before-define:0*/
+
 "use strict";
 
 // URL options:
@@ -45,45 +47,13 @@ requirejs(
     './iputils',
     './progress',
     './strings',
-  ], function(Cookie, IO, IPUtils, ProgressBar, Strings) {
+    './urlutils',
+  ], function(Cookie, IO, IPUtils, ProgressBar, Strings, urlutils) {
   var $ = function(id) {
     return document.getElementById(id);
   };
 
-  // Reads the query values from a URL like string.
-  // @param {String} url URL like string eg. http://foo?key=value
-  // @param {Object=} opt_obj Object to attach key values to
-  // @return {Object} Object with key values from URL
-  var parseUrlQueryString = function(str, opt_obj) {
-    var dst = opt_obj || {};
-    try {
-      var q = str.indexOf("?");
-      var e = str.indexOf("#");
-      if (e < 0) {
-        e = str.length;
-      }
-      var query = str.substring(q + 1, e);
-      var pairs = query.split("&");
-      for (var ii = 0; ii < pairs.length; ++ii) {
-        var keyValue = pairs[ii].split("=");
-        var key = keyValue[0];
-        var value = decodeURIComponent(keyValue[1]);
-        dst[key] = value;
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    return dst;
-  };
-
-  // Reads the query values from the current URL.
-  // @param {Object=} opt_obj Object to attach key values to
-  // @return {Object} Object with key values from URL
-  var parseUrlQuery = function(opt_obj) {
-    return parseUrlQueryString(window.location.href, opt_obj);
-  };
-
-  var g = parseUrlQuery();
+  var g = urlutils.searchAsObject();
   var log = (g.debug || g.verbose) ? console.log.bind(console) : function() { };
 
   var getGamesUrl = "http://happyfuntimes.net/api/getgames";
@@ -170,11 +140,11 @@ requirejs(
     var numChecked = 0;
 
     var checkNextHFT = function() {
-      if (numChecked == ipAddresses.length) {
-        if (runningHFTs.length == 0) {
+      if (numChecked === ipAddresses.length) {
+        if (runningHFTs.length === 0) {
           // There was nothing, start scanning
           getIpAddress();
-        } else if (runningHFTs.length == 1) {
+        } else if (runningHFTs.length === 1) {
           goToUrl(makeUrlFromHFT(runningHFTs[0]));
         } else {
           askPlayerWhichHFT(runningHFTs);
@@ -222,7 +192,7 @@ requirejs(
       addFullScans(ipAddresses);
     }
 
-    addFastScans()
+    addFastScans();
   };
 
   // Check the most common home class C ip addresses.
@@ -282,14 +252,18 @@ requirejs(
   var goToUrl = function(baseUrl) {
     found = true;
     var name = nameCookie.get() || "";
-    var url = baseUrl + "/enter-name.html?fromHFTNet=true&name=" + encodeURIComponent(name);
+    var url = baseUrl + "/enter-name.html" + urlutils.objecToSearchString({
+      fromHFTNet: true,
+      name: name,
+      cordovaUrl: g.cordovaUrl,
+    });
     log("**GOTO** url: " + url);
     if (!g.debug && g.go !== false && g.go !== "false") {
       window.location.href = url;
     }
   };
 
-  var checkGoodResponse = function(url, obj) {
+  var checkGoodResponse = function(url) {
     goToUrl(url);
   };
 
@@ -314,7 +288,7 @@ requirejs(
           // Remove all pending fastScans for this ip
           var prefix = ipAddress.replace(/\.\d+$/, '.');
           fastScanAddresses = fastScanAddresses.filter(function(address) {
-            var keep = address.substring(0, prefix.length) != prefix;
+            var keep = address.substring(0, prefix.length) !== prefix;
             if (!keep) {
               updateProgress();
             }
@@ -352,9 +326,9 @@ requirejs(
     var url = "http://" + ipAndPort;
     IO.sendJSON(url, {cmd: 'happyFunTimesPing'}, function(err, obj) {
       if (!err) {
-        if (obj.version != "0.0.0") {
+        if (obj.version !== "0.0.0") {
           err = "bad api version: " + obj.version;
-        } else if (obj.id != "HappyFunTimes") {
+        } else if (obj.id !== "HappyFunTimes") {
           err = "bad id: " + obj.id;
         }
       }

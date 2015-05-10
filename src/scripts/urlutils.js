@@ -28,40 +28,43 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 "use strict";
 
-var winston = require('winston');
-// Requiring `winston-loggly` will expose
-// `winston.transports.Loggly`
-//
-require('winston-loggly');
+define([], function() {
 
-var transports = [
-    new (winston.transports.Console)({timestamp:true}),
-];
+  // Reads the query values from a URL like string.
+  // @param {String} url URL like string eg. http://foo?key=value
+  // @param {Object} [opt_obj] Object to attach key values to
+  // @return {Object} Object with key values from URL
+  function searchStringToObject(str, opt_obj) {
+    if (str[0] === '?') {
+      str = str.substring(1);
+    }
+    var results = opt_obj || {};
+    str.split("&").forEach(function(part) {
+      var pair = part.split("=").map(decodeURIComponent);
+      results[pair[0]] = pair[1] !== undefined ? pair[1] : true;
+    });
+    return results;
+  }
 
-if (!process.env.LOGGLY_TOKEN) {
-  console.warn("LOGGLY_TOKEN not set. Will not log to LOGGLY");
-} else {
-  transports.push(new (winston.transports.Loggly)({
-    subdomain: "greggman",
-    auth: "",
-    inputName: "",
-    inputToken: process.env.LOGGLY_TOKEN,
-    json: true,
-    tags: [ "shft", "NodeJS"],
-  }));
-}
+  // Reads the query values from the current URL.
+  // @param {Object} [opt_obj] Object to attach key values to
+  // @return {Object} Object with key values from URL
+  function searchAsObject(opt_obj) {
+    return searchStringToObject(window.location.search, opt_obj);
+  }
 
-var logger = new (winston.Logger)({
-  transports: transports,
+  function objectToSearchString(obj) {
+    return "?" + Object.keys(obj).map(function(key) {
+      return encodeURIComponent(key) + "=" + encodeURIComponent(obj[key]);
+    }).join("&");
+  }
+
+  return {
+    searchStringToObject: searchStringToObject,
+    searchAsObject: searchAsObject,
+    objectToSearchString: objectToSearchString,
+  };
 });
-
-logger.on('error', function(err) {
-  console.error("winston:" + err);
-});
-
-module.exports = logger;
-
-
-

@@ -31,34 +31,35 @@
 "use strict";
 
 define(function() {
-  /**
-   * Copies properties from obj to dst recursively.
-   * @param {!Object} obj Object with new settings.
-   * @param {!Object} dst Object to receive new settings.
-   */
-  var copyProperties = function(obj, dst) {
-    for (var name in obj) {
-      var value = obj[name];
-      if (value instanceof Array) {
-        var newDst = dst[name];
-        if (!newDst) {
-          newDst = [];
-          dst[name] = newDst;
-        }
-        copyProperties(value, newDst);
-      } else if (typeof value == 'object') {
-        var newDst = dst[name];
-        if (!newDst) {
-          newDst = {};
-          dst[name] = newDst;
-        }
-        copyProperties(value, newDst);
-      } else {
-        dst[name] = value;
-      }
-    }
-  };
 
+   var copyProperties = function(src, dst) {
+     for (var name in src) {
+       if (!src.hasOwnProperty(name)) {
+         continue;
+       }
+       var value = src[name];
+       if (value instanceof Array) {
+         var newDst = dst[name];
+         if (!newDst) {
+           newDst = [];
+           dst[name] = newDst;
+         }
+         copyProperties(value, newDst);
+       } else if (value instanceof Object &&
+                  !(value instanceof Function) &&
+                  !(value instanceof HTMLElement)) {
+         var newDst = dst[name];  // eslint-disable-line
+         if (!newDst) {
+           newDst = {};
+           dst[name] = newDst;
+         }
+         copyProperties(value, newDst);
+       } else {
+         dst[name] = value;
+       }
+     }
+     return dst;
+   };
 
   // Reads the query values from a URL like string.
   // @param {string} url URL like string eg. http://foo?key=value
@@ -90,7 +91,7 @@ define(function() {
   // @param {object} opt_obj Object to attach key values to
   // @return {object} Object with key values from URL
   var parseUrlQuery = function(opt_obj) {
-    return parseUrlQueryString(window.location.href);
+    return parseUrlQueryString(window.location.href, opt_obj);
   };
 
   // Read `settings` from URL. Assume settings it a
@@ -107,8 +108,8 @@ define(function() {
     var argumentName = opt_argumentName || 'settings';
     var src = parseUrlQuery();
     var dst = opt_obj || {};
-    if (src.settings) {
-      var json = src.settings.replace(fixKeysRE, '"$1":');
+    if (src[argumentName]) {
+      var json = src[argumentName].replace(fixKeysRE, '"$1":');
       var settings = JSON.parse(json);
       copyProperties(settings, dst);
     }
@@ -123,7 +124,7 @@ define(function() {
     var strong = randInt(3);
     var colors = [];
     for (var ii = 0; ii < 3; ++ii) {
-      colors.push(randInt(128) + (ii == strong ? 128 : 64));
+      colors.push(randInt(128) + (ii === strong ? 128 : 64));
     }
     return "rgb(" + colors.join(",") + ")";
   };
@@ -135,7 +136,7 @@ define(function() {
       if (rules) {
         for (var rr = 0; rr < rules.length; ++rr) {
           var rule = rules[rr];
-          if (rule.selectorText == selector) {
+          if (rule.selectorText === selector) {
             return rule;
           }
         }
@@ -147,35 +148,6 @@ define(function() {
     var txt = document.createTextNode("");
     element.appendChild(txt);
     return txt;
-  };
-
-  var copyProperties = function(src, dst) {
-    for (var name in src) {
-      if (!src.hasOwnProperty(name)) {
-        continue;
-      }
-      var value = src[name];
-      if (value instanceof Array) {
-        var newDst = dst[name];
-        if (!newDst) {
-          newDst = [];
-          dst[name] = newDst;
-        }
-        copyProperties(value, newDst);
-      } else if (value instanceof Object &&
-                 !(value instanceof Function) &&
-                 !(value instanceof HTMLElement)) {
-        var newDst = dst[name];
-        if (!newDst) {
-          newDst = {};
-          dst[name] = newDst;
-        }
-        copyProperties(value, newDst);
-      } else {
-        dst[name] = value;
-      }
-    }
-    return dst;
   };
 
   /**
@@ -231,13 +203,13 @@ define(function() {
   };
 
   // Resizes a cavnas to match its CSS displayed size.
-  var resize = function(canvas, use_devicePixelRatio) {
-    var mult = use_devicePixelRatio ? window.devicePixelRatio : 1;
+  var resize = function(canvas, useDevicePixelRatio) {
+    var mult = useDevicePixelRatio ? window.devicePixelRatio : 1;
     mult = mult || 1;
     var width  = Math.floor(canvas.clientWidth  * mult);
     var height = Math.floor(canvas.clientHeight * mult);
-    if (canvas.width != width ||
-        canvas.height != height) {
+    if (canvas.width !== width ||
+        canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
       return true;
