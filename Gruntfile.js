@@ -25,7 +25,9 @@ module.exports = function(grunt) {
   grunt.registerTask('build', function() {
     var done = this.async();
     var build = require('./build/build');
-    build.build().done(done);
+    build.build({
+      makeDebugVersion: grunt.option("hft-debug"),
+    }).done(done);
   });
 
   grunt.registerTask('default', ['eslint', 'clean', 'build']);
