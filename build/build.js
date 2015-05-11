@@ -29,7 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-exports.build = function() {
+exports.build = function(options) {
 
 var fs        = require('fs');
 var minify    = require('html-minifier').minify;
@@ -42,19 +42,47 @@ var files = [
   { filename: "save-name.html" },
 ];
 
+var releaseBuildOptions = {
+  jsOptions: {
+    baseUrl:  ".",
+    name:     "almond.js",
+    wrap:     true,
+  },
+  htmlOptions: {
+    removeComments: true,
+    collapseWhitespace: true,
+    conservativeCollapse: true,
+    preserveLineBreaks: true,
+    minifyCSS: true,
+  },
+};
+
+var debugBuildOptions = {
+  jsOptions: {
+    baseUrl:  ".",
+    name:     "almond.js",
+    optimize: "none",
+    wrap:     true,
+  },
+  htmlOptions: {
+    removeComments: false,
+    collapseWhitespace: false,
+    conservativeCollapse: true,
+    preserveLineBreaks: true,
+    minifyCSS: false,
+  },
+};
+
+var buildOptions = options.makeDebugVersion ? debugBuildOptions : releaseBuildOptions;
+
 var concatJS = function(src) {
   var cwd = process.cwd();
   var tmp = "tmptmptmptmp.js";
   process.chdir(path.dirname(src));
-  var config = {
-    baseUrl: ".",
-    name:    "almond.js",
-    include: path.basename(src),
-    insertRequire: [path.basename(src)],
-//    optimize: "none",
-    out:     tmp,
-    wrap:    true,
-  };
+  var config = buildOptions.jsOptions;
+  config.include = path.basename(src);
+  config.insertRequire = [path.basename(src)];
+  config.out = tmp;
   var cleanup = function() {
     var content;
     if (fs.existsSync(tmp)) {
@@ -74,6 +102,17 @@ var concatJS = function(src) {
   });
 };
 
+function writeFileIfDifferent(filename, content) {
+  if (fs.existsSync(filename)) {
+    var orig = fs.readFileSync(filename, {encoding: "utf8"});
+    if (orig === content) {
+      return;
+    }
+  }
+  fs.writeFileSync(filename, content);
+  console.log("wrote:", filename);
+}
+
 var srcBase = path.join(__dirname, "..", "src");
 var dstBase = path.join(__dirname, "..", "public");
 var scriptRE = /<script data-main="(.*?)" src="scripts\/require.js"><\/script>/;
@@ -81,7 +120,7 @@ var cssRE    = /<link rel="stylesheet" href="(.*?)">/g;
 
 // Copy almond out of node_modules because I can't effing figure out how to set r.js's config
 // in such a way that I can leave it where it is >:(
-fs.writeFileSync(path.join(srcBase, "scripts/almond.js"),
+writeFileIfDifferent(path.join(srcBase, "scripts/almond.js"),
     fs.readFileSync(path.join(__dirname, "../node_modules/almond/almond.js"), {encoding: "utf-8"}));
 
 
@@ -101,17 +140,9 @@ return new Promise(function(resolve, reject) {
       return concatJS(path.join(srcBase, script))
       .then(function(scriptContent) {
         html = html.replace(scriptRE, "<script>\n" + scriptContent + "\n</script>\n");
-        html = minify(html, {
-          removeComments: true,
-          collapseWhitespace: true,
-          conservativeCollapse: true,
-          preserveLineBreaks: true,
-          minifyCSS: true,
-        });
-
+        html = minify(html, buildOptions.htmlOptions);
         var dstName = path.join(dstBase, file.filename);
-        fs.writeFileSync(dstName, html);
-        console.log("wrote: " + dstName);
+        writeFileIfDifferent(dstName, html);
       })
       .catch(function(err) {
         console.error(err);
