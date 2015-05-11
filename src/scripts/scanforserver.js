@@ -45,18 +45,18 @@ requirejs(
   [ './cookies',
     './io',
     './iputils',
+    './misc',
     './progress',
     './strings',
-    './urlutils',
-  ], function(Cookie, IO, IPUtils, ProgressBar, Strings, urlutils) {
+  ], function(Cookie, IO, IPUtils, misc, ProgressBar, Strings) {
   var $ = function(id) {
     return document.getElementById(id);
   };
 
-  var g = urlutils.searchAsObject();
+  var g = misc.parseUrlQuery();
   var log = (g.debug || g.verbose) ? console.log.bind(console) : function() { };
 
-  var getGamesUrl = "http://happyfuntimes.net/api/getgames";
+  var getGamesUrl = window.location.origin + "/api/getgames";
   if (g.debug) {
     getGamesUrl = "http://localhost:1337/api/getgames";
   }
@@ -124,8 +124,17 @@ requirejs(
     }
   };
 
+  var makeUrl = function(baseUrl) {
+    var name = nameCookie.get() || "";
+    return baseUrl + "/enter-name.html" + misc.objectToSearchString({
+      fromHFTNet: true,
+      name: name,
+      cordovaurl: g.cordovaurl,
+    });
+  };
+
   var makeUrlFromHFT = function(hft) {
-    return "http://" + hft.ipAddress;
+    return makeUrl("http://" + hft.ipAddress);
   };
 
   /**
@@ -249,14 +258,8 @@ requirejs(
     doNextThing();
   };
 
-  var goToUrl = function(baseUrl) {
+  var goToUrl = function(url) {
     found = true;
-    var name = nameCookie.get() || "";
-    var url = baseUrl + "/enter-name.html" + urlutils.objecToSearchString({
-      fromHFTNet: true,
-      name: name,
-      cordovaUrl: g.cordovaUrl,
-    });
     log("**GOTO** url: " + url);
     if (!g.debug && g.go !== false && g.go !== "false") {
       window.location.href = url;
@@ -264,7 +267,7 @@ requirejs(
   };
 
   var checkGoodResponse = function(url) {
-    goToUrl(url);
+    goToUrl(makeUrl(url));
   };
 
   var fastScanCheckAddress = function(url, ipAddress) {
