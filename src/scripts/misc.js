@@ -32,34 +32,56 @@
 
 define(function() {
 
-   var copyProperties = function(src, dst) {
-     for (var name in src) {
-       if (!src.hasOwnProperty(name)) {
-         continue;
-       }
-       var value = src[name];
-       if (value instanceof Array) {
-         var newDst = dst[name];
-         if (!newDst) {
-           newDst = [];
-           dst[name] = newDst;
-         }
-         copyProperties(value, newDst);
-       } else if (value instanceof Object &&
-                  !(value instanceof Function) &&
-                  !(value instanceof HTMLElement)) {
-         var newDst = dst[name];  // eslint-disable-line
-         if (!newDst) {
-           newDst = {};
-           dst[name] = newDst;
-         }
-         copyProperties(value, newDst);
-       } else {
-         dst[name] = value;
-       }
-     }
-     return dst;
-   };
+  var copyProperties = function(src, dst) {
+    for (var name in src) {
+      if (!src.hasOwnProperty(name)) {
+        continue;
+      }
+      var value = src[name];
+      if (value instanceof Array) {
+        var newDst = dst[name];
+        if (!newDst) {
+          newDst = [];
+          dst[name] = newDst;
+        }
+        copyProperties(value, newDst);
+      } else if (value instanceof Object &&
+                 !(value instanceof Function) &&
+                 !(value instanceof HTMLElement)) {
+        var newDst = dst[name];  // eslint-disable-line
+        if (!newDst) {
+          newDst = {};
+          dst[name] = newDst;
+        }
+        copyProperties(value, newDst);
+      } else {
+        dst[name] = value;
+      }
+    }
+    return dst;
+  };
+
+  // Reads the query values from a URL like string.
+  // @param {String} url URL like string eg. http://foo?key=value
+  // @param {Object} [opt_obj] Object to attach key values to
+  // @return {Object} Object with key values from URL
+  function searchStringToObject(str, opt_obj) {
+    if (str[0] === '?') {
+      str = str.substring(1);
+    }
+    var results = opt_obj || {};
+    str.split("&").forEach(function(part) {
+      var pair = part.split("=").map(decodeURIComponent);
+      results[pair[0]] = pair[1] !== undefined ? pair[1] : true;
+    });
+    return results;
+  }
+
+  function objectToSearchString(obj) {
+    return "?" + Object.keys(obj).map(function(key) {
+      return encodeURIComponent(key) + "=" + encodeURIComponent(obj[key]);
+    }).join("&");
+  }
 
   // Reads the query values from a URL like string.
   // @param {string} url URL like string eg. http://foo?key=value
@@ -74,13 +96,7 @@ define(function() {
         e = str.length;
       }
       var query = str.substring(q + 1, e);
-      var pairs = query.split("&");
-      for (var ii = 0; ii < pairs.length; ++ii) {
-        var keyValue = pairs[ii].split("=");
-        var key = keyValue[0];
-        var value = decodeURIComponent(keyValue[1]);
-        dst[key] = value;
-      }
+      dst = searchStringToObject(query, dst);
     } catch (e) {
       console.error(e);
     }
@@ -91,7 +107,7 @@ define(function() {
   // @param {object} opt_obj Object to attach key values to
   // @return {object} Object with key values from URL
   var parseUrlQuery = function(opt_obj) {
-    return parseUrlQueryString(window.location.href, opt_obj);
+    return searchStringToObject(window.location.search, opt_obj);
   };
 
   // Read `settings` from URL. Assume settings it a
@@ -227,8 +243,10 @@ define(function() {
     getAbsolutePosition: getAbsolutePosition,
     invertPlusMinusRange: invertPlusMinusRange,
     minToZero: minToZero,
+    objectToSearchString: objectToSearchString,
     parseUrlQuery: parseUrlQuery,
     parseUrlQueryString: parseUrlQueryString,
+    searchStringToObject: searchStringToObject,
     radToDeg: radToDeg,
     randInt: randInt,
     randCSSColor: randCSSColor,
