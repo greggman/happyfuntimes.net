@@ -130,6 +130,8 @@ requirejs(
       fromHFTNet: true,
       name: name,
       cordovaurl: g.cordovaurl,
+      restarturl: g.restarturl,
+      origin: window.location.origin,
     });
   };
 
