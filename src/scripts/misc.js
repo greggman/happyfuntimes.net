@@ -78,7 +78,9 @@ define(function() {
   }
 
   function objectToSearchString(obj) {
-    return "?" + Object.keys(obj).map(function(key) {
+    return "?" + Object.keys(obj).filter(function(key) {
+      return obj[key] !== undefined;
+    }).map(function(key) {
       return encodeURIComponent(key) + "=" + encodeURIComponent(obj[key]);
     }).join("&");
   }
