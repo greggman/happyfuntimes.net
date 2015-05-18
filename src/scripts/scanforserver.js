@@ -49,9 +49,7 @@ requirejs(
     './progress',
     './strings',
   ], function(Cookie, IO, IPUtils, misc, ProgressBar, Strings) {
-  var $ = function(id) {
-    return document.getElementById(id);
-  };
+  var $ = document.getElementById.bind(document);
 
   var g = misc.parseUrlQuery();
   var log = (g.debug || g.verbose) ? console.log.bind(console) : function() { };
