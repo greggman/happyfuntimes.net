@@ -69,6 +69,7 @@ requirejs(
   var timeout = 2000; // in ms
   var port = 18679;
   var found = false;
+  var inApp = g.cordovaurl !== undefined;
 
   var fastScanAddresses = [];
   var fullScanAddresses = [];
@@ -76,6 +77,15 @@ requirejs(
   var totalThingsDone = 0;
 
   var progressBar = new ProgressBar($("scan-progress"));
+  $("try").href = window.location.href;
+
+  if (inApp) {
+    $("about").style.display = "none";
+    //$("about").addEventListener('click', function(e) {
+    //  e.preventDefault();
+    //  window.open(e.target.href, '_system');
+    //}, false);
+  }
 
   var handleCouldNotFind = function() {
     Array.prototype.forEach.call(document.querySelectorAll(".hidden"), function(elem) {
