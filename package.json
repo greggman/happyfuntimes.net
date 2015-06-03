@@ -28,7 +28,7 @@
     "express": "^4.6.1",
     "promise": "^5.0.0",
     "winston": "^0.7.3",
-    "winston-loggly": "^1.0.1"
+    "winston-loggly": "^1.1.0"
   },
   "devDependencies": {
     "almond": "^0.3.0",
