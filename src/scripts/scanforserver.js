@@ -77,6 +77,7 @@ requirejs(
   var totalThingsDone = 0;
 
   var progressBar = new ProgressBar($("scan-progress"));
+  progressBar.show(true);
   $("try").href = window.location.href;
 
   if (inApp) {
@@ -156,10 +157,12 @@ requirejs(
   var checkGamesRunning = function(ipAddresses) {
     // Check each ipAddress returned.
     var runningHFTs = [];
+    var names = {};
     var numChecked = 0;
 
     var checkNextHFT = function() {
       if (numChecked === ipAddresses.length) {
+        progressBar.show(false);
         if (runningHFTs.length === 0) {
           // There was nothing, start scanning
           getIpAddress();
@@ -176,11 +179,24 @@ requirejs(
         log("ping hft: " + ipAddress);
         return function(err, obj) {
           if (!err) {
-            runningHFTs.push({
-              ipAddress: ipAddress,
-              data: obj,
-            });
+            var name = obj.serverName;
+            var add = true;
+            if (name) {
+              if (names[name]) {
+                add = false;
+              } else {
+                names[name] = true;
+              }
+            }
+
+            if (add) {
+              runningHFTs.push({
+                ipAddress: ipAddress,
+                data: obj,
+              });
+            }
           }
+          progressBar.set(numChecked / ipAddresses.length);
           checkNextHFT();
         };
       }(ipAddress));
@@ -197,6 +213,7 @@ requirejs(
         id: "game-" + ndx,
         url: makeUrlFromHFT(hft),
         name: hft.data.serverName || "*unknown*",
+        ipAddress: g.verbose ? hft.ipAddress : "",
       });
     });
     $("multiple-hfts").style.display = "block";
