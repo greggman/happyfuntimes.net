@@ -33,15 +33,15 @@
 
 var Promise = require('promise');
 var request = require('request').defaults({ json: true });
-var server = require('../lib/server');
+var Server = require('../lib/server');
 var should = require('should');
 
 var postP = function(url, body) {
-  body = body || "";
+  body = body || {};
   return new Promise(function(fulfill, reject) {
     request.post(url, {json: true, body: body}, function(err, res, body) {
       if (err || res.statusCode != 200) {
-        reject(err || res.body.msg);
+        reject(new Error(err || res.body.msg || "failed request"));
       } else {
         fulfill(res, body);
       }
@@ -50,7 +50,11 @@ var postP = function(url, body) {
 };
 
 describe("server", function() {
+
+  var server;
+
   before(function() {
+    server = new Server();
     server.listen(8080);
   });
 
