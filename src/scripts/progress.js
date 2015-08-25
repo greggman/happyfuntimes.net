@@ -51,6 +51,10 @@ define(function() {
     };
 
     this.set(0);
+
+    this.show = function(show) {
+      element.style.display = show ? "block" : "none";
+    };
   };
 
   return ProgressBar;
