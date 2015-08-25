@@ -31,7 +31,7 @@
 
 "use strict";
 
-var server = require('./lib/server');
+var Server = require('./lib/server');
 var log = require('./lib/log');
 
 var g = {
@@ -39,6 +39,7 @@ var g = {
   address: process.env.HFT_ADDRESS || '127.0.0.1',
 };
 
+var server = new Server({rootPath: "public"});
 server.listen(g.port, g.address);
 server.monitor();
 log.info("started listening: ", g);
