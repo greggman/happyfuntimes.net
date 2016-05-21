@@ -37,7 +37,6 @@
 //    debug=true    : contact local host, print stuff
 //    verbose=true  : print stuff
 //    local=true    : contact local.superhappyfuntimes.net
-//    scan=false    : don't scan
 //    go=false      : don't go to url
 
 // Start the main app logic.
@@ -71,8 +70,6 @@ requirejs(
   var found = false;
   var inApp = g.cordovaurl !== undefined;
 
-  var fastScanAddresses = [];
-  var fullScanAddresses = [];
   var totalThingsToDo = 0;
   var totalThingsDone = 0;
 
@@ -116,21 +113,11 @@ requirejs(
     // It was bad
     if (err) {
       console.error(err);
-      // start scanning
-      getIpAddress();
+      handleCouldNotFind();
       return;
     }
 
     checkGamesRunning(obj);
-  };
-
-  var getIpAddress = function() {
-    //if (g.scan !== false && g.scan !== "false") {
-    if (g.scan) {
-      IPUtils.getLocalIpAddresses(scan);
-    } else {
-      handleCouldNotFind();
-    }
   };
 
   var makeUrl = function(baseUrl) {
@@ -223,68 +210,6 @@ requirejs(
   log("checking: " + getGamesUrl);
   IO.sendJSON(getGamesUrl, {}, checkHFTResponse, { timeout: 5000 });
 
-  var scan = function(ipAddresses) {
-    if (ipAddresses) {
-      addFullScans(ipAddresses);
-    }
-
-    addFastScans();
-  };
-
-  // Check the most common home class C ip addresses.
-  var commonIpAddresses = [
-    "192.168.0.0",    // D-Link, Linksys, Netgear, Senao, Trendtech,
-    "192.168.1.0",    // 3com, Asus, Dell, D-Link, Linksys, MSI, Speedtouch, Trendtech, US Robotics, Zytel,
-    "192.168.2.0",    // Belkin, Microsoft, Trendtech, US Robotics, Zyxel,
-    "192.168.10.0",   // Motorola, Trendtech, Zyxel
-    "192.168.11.0",   // Buffalo
-    "10.0.0.0",       // Speedtouch, Zyxel,
-    "10.0.1.0",       // Apple, Belkin, D-Link
-
-    "192.168.20.0",   // Motorola
-    "192.168.30.0",   // Motorola
-    "192.168.50.0",   // Motorola
-    "192.168.62.0",   // Motorola
-    "192.168.100.0",  // Motorola
-    "192.168.101.0",  // Motorola
-    "192.168.4.0",    // Zyxel
-    "192.168.8.0",    // Zyxel
-    "192.168.123.0",  // US Robotics
-    "192.168.254.0",  // Flowpoint
-  ];
-
-  if (g.debug) {
-    commonIpAddresses = [
-      "192.168.0.0",
-      "10.0.0.0",
-      "192.168.123.0",
-    ];
-  }
-
-  var addFastScans = function() {
-    // Check these addresses first
-    var commonCClassParts = [1, 2, 3, 10, 11, 12, 20, 21, 22, 50, 51, 52, 100, 101, 102, 150, 151, 152, 200, 201, 202];
-
-    commonIpAddresses.forEach(function(ipAddress) {
-      commonCClassParts.forEach(function(cClassPart) {
-        fastScanAddresses.push(ipAddress.replace(/\d+$/, cClassPart));
-        ++totalThingsToDo;
-      });
-    });
-    doNextThing();
-  };
-
-  var addFullScans = function(ipAddresses) {
-    log("addFullScan: " + ipAddresses);
-    ipAddresses.forEach(function(ipAddress) {
-      for (var ii = startingAddress; ii <= endingAddress; ++ii) {
-        fullScanAddresses.push(ipAddress.replace(/\d+$/, ii));
-        ++totalThingsToDo;
-      }
-    });
-    doNextThing();
-  };
-
   var goToUrl = function(url) {
     found = true;
     log("**GOTO** url: " + url);
@@ -295,61 +220,6 @@ requirejs(
 
   var checkGoodResponse = function(url) {
     goToUrl(makeUrl(url));
-  };
-
-  var fastScanCheckAddress = function(url, ipAddress) {
-    var timeSent = Date.now();
-    return function(err, obj) {
-      updateProgress();
-
-      if (found) {
-        return;
-      }
-
-      if (err) {
-        // it wasn't the correct place BUT did we timeout?
-        var now = Date.now();
-        var elapsedTime = now - timeSent;
-        if (elapsedTime < timeout * 0.8) {
-          log("fastScan: " + ipAddress + " got fast response");
-          // We didn't timeout which means we probably got a rejected from some machine
-          // So do a fullscan of this network
-
-          // Remove all pending fastScans for this ip
-          var prefix = ipAddress.replace(/\.\d+$/, '.');
-          fastScanAddresses = fastScanAddresses.filter(function(address) {
-            var keep = address.substring(0, prefix.length) !== prefix;
-            if (!keep) {
-              updateProgress();
-            }
-            return keep;
-          });
-
-          addFullScans([ipAddress]);
-        } else {
-          doNextThing();
-        }
-      } else {
-        checkGoodResponse(url, obj);
-      }
-    };
-  };
-
-  var fullScanCheckAddress = function(url, ipAddress) {
-    return function(err, obj) {
-      updateProgress();
-
-      if (found) {
-        return;
-      }
-
-      if (err) {
-        log("fullScan: " + ipAddress + " failed");
-        doNextThing();
-      } else {
-        checkGoodResponse(url, obj);
-      }
-    };
   };
 
   var makeHFTPingRequest = function(ipAndPort, fn) {
@@ -371,23 +241,6 @@ requirejs(
     ++numRequestsInProgress;
     var ipAndPort = ipAddress + ":" + port;
     makeHFTPingRequest(ipAndPort, fn("http://" + ipAndPort, ipAddress));
-  };
-
-  var doNextThing = function() {
-    // If there are fullScan things do those
-    if (fullScanAddresses.length) {
-      log("fullScan: " + fullScanAddresses[0]);
-      startScan(fullScanAddresses.shift(), fullScanCheckAddress);
-    } else if (fastScanAddresses.length) {
-      // If there are fastScan things do those
-      log("fastScan: " + fastScanAddresses[0]);
-      startScan(fastScanAddresses.shift(), fastScanCheckAddress);
-    }
-
-    if (numRequestsInProgress < maxSimultaneousRequests &&
-        (fastScanAddresses.length || fullScanAddresses.length)) {
-      doNextThing();
-    }
   };
 });
 
