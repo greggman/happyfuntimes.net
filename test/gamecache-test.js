@@ -71,6 +71,30 @@ describe('GameCache', function() {
     cache.destroy();
   });
 
+  it('test we can add 2 different address and get each one', function() {
+    var cache = new GameCache();
+
+    var externalIp1 = "1.2.3.4";
+    var externalIp2 = "1.2.3.5";
+    var internalIp1 = "4.5.6.7:2345";
+    var internalIp2 = "5.6.7.8:3456";
+
+    cache.addExternalIpToInternalIpGame(externalIp1, internalIp1);
+    cache.addExternalIpToInternalIpGame(externalIp2, internalIp2);
+
+    var ips = cache.getInternalIpsForExternalIp(externalIp1);
+    ips.length.should.equal(1);
+    ips.should.containEql(internalIp1);
+
+    var ips = cache.getInternalIpsForExternalIp(externalIp2);
+    ips.length.should.equal(1);
+    ips.should.containEql(internalIp2);
+
+    cache.getInfo().numGames.should.equal(2);
+
+    cache.destroy();
+  });
+
   it('test we can add the same address twice only returns 1', function() {
     var cache = new GameCache();
 
