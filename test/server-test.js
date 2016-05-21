@@ -36,10 +36,10 @@ var request = require('request').defaults({ json: true });
 var Server = require('../lib/server');
 var should = require('should');
 
-var postP = function(url, body) {
+var postP = function(url, body, headers) {
   body = body || {};
   return new Promise(function(fulfill, reject) {
-    request.post(url, {json: true, body: body}, function(err, res, body) {
+    request.post(url, {json: true, body: body, headers: headers}, function(err, res, body) {
       if (err || res.statusCode != 200) {
         reject(new Error(err || res.body.msg || "failed request"));
       } else {
@@ -213,7 +213,6 @@ describe("server", function() {
       }).then(done, done);
     });
 
-
     it("fails if missing ip address", function(done) {
       postP("http://localhost:8080/api/inform2", {port: "2345"}).then(function(res) {
         (false).should.be.true;  // error if we got here
@@ -259,6 +258,21 @@ describe("server", function() {
         (false).should.be.true;  // error if we got here
       }, function(err) {
         (true).should.be.true;  // success if we got here
+      }).then(done, done);
+    });
+
+  });
+
+  describe("inform2-ipv6", function() {
+
+    it("getGames should return ipv6 if 1 ipv6 inform", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["123::456"], port: "4567"}).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames");
+      }).then(function(res) {
+        res.body.should.be.instanceof(Array);
+        res.body.should.be.length(1);
+        res.body.should.containEql("[123::456]:4567");
       }).then(done, done);
     });
 
