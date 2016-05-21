@@ -60,6 +60,9 @@ requirejs(
   if (g.local) {
     getGamesUrl = "http://local.happyfuntimes.net/api/getgames2";
   }
+  if (g.url) {
+    getGamesUrl = g.url;
+  }
   var nameCookie = new Cookie("name");
   var timeout = 2000; // in ms
   var inApp = g.cordovaurl !== undefined;
