@@ -278,5 +278,64 @@ describe("server", function() {
 
   });
 
+  describe("getGames2", function() {
+
+    it("getGames2 should return ip if 1 inform", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"], port: "4567"}).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames2");
+      }).then(function(res) {
+        res.body.gameIps.should.be.instanceof(Array);
+        res.body.gameIps.should.be.length(1);
+        res.body.gameIps.should.containEql("1.2.3.4:4567");
+        res.body.publicIps.should.be.instanceof(Array);
+        res.body.publicIps.should.be.length(1);
+        res.body.publicIps.should.containEql("::ffff:127.0.0.1");
+      }).then(done, done);
+    });
+
+    it("getGames2 should return 2 ips if 2 informs", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["5.6.7.8"], port:"2345"}).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"], port: "5432"});
+      }).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames2");
+      }).then(function(res) {
+        res.body.gameIps.should.be.instanceof(Array);
+        res.body.gameIps.should.be.length(2);
+        res.body.gameIps.should.containEql("1.2.3.4:5432");
+        res.body.gameIps.should.containEql("5.6.7.8:2345");
+      }).then(done, done);
+    });
+
+    it("getGames2 should return 2 ips if on inform with 2 addresses", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["5.6.7.8", "1.2.3.4"], port:"2345"}).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames2");
+      }).then(function(res) {
+        res.body.gameIps.should.be.instanceof(Array);
+        res.body.gameIps.should.be.length(2);
+        res.body.gameIps.should.containEql("1.2.3.4:2345");
+        res.body.gameIps.should.containEql("5.6.7.8:2345");
+      }).then(done, done);
+    });
+
+    it("getGames should return 2 ips if 2 informs with same ip different ports", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"], port: "2345"}).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"], port: "5432"});
+      }).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames");
+      }).then(function(res) {
+        res.body.should.be.instanceof(Array);
+        res.body.should.be.length(2);
+        res.body.should.containEql("1.2.3.4:5432");
+        res.body.should.containEql("1.2.3.4:2345");
+      }).then(done, done);
+    });
+  });
 });
 
