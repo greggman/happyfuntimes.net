@@ -27,7 +27,7 @@
     "body-parser": "^1.10.0",
     "express": "^4.6.1",
     "forever": "^0.14.1",
-    "ip6addr": "^0.1.1",
+    "ip6addr": "git+https://github.com/joyent/node-ip6addr.git#44a4949",
     "promise": "^5.0.0",
     "winston": "^1.0.0",
     "winston-loggly": "^1.1.0"
