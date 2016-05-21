@@ -53,21 +53,15 @@ requirejs(
   var g = misc.parseUrlQuery();
   var log = (g.debug || g.verbose) ? console.log.bind(console) : function() { };
 
-  var getGamesUrl = window.location.origin + "/api/getgames";
+  var getGamesUrl = window.location.origin + "/api/getgames2";
   if (g.debug) {
-    getGamesUrl = "http://localhost:1337/api/getgames";
+    getGamesUrl = "http://localhost:1337/api/getgames2";
   }
   if (g.local) {
-    getGamesUrl = "http://local.happyfuntimes.net/api/getgames";
+    getGamesUrl = "http://local.happyfuntimes.net/api/getgames2";
   }
   var nameCookie = new Cookie("name");
-  var startingAddress = 1;
-  var endingAddress = g.debug ? 5 : 254;
-  var numRequestsInProgress = 0;
-  var maxSimultaneousRequests = 4;
   var timeout = 2000; // in ms
-  var port = 18679;
-  var found = false;
   var inApp = g.cordovaurl !== undefined;
 
   var totalThingsToDo = 0;
@@ -97,12 +91,7 @@ requirejs(
    */
   var updateProgress = function() {
     ++totalThingsDone;
-    --numRequestsInProgress;
     progressBar.set(totalThingsDone / totalThingsToDo);
-
-    if (!found && totalThingsDone >= totalThingsToDo) {
-      handleCouldNotFind();
-    }
   };
 
   /**
@@ -141,24 +130,29 @@ requirejs(
    * If there's more than one let the user select. If zero then
    * scan.
    */
-  var checkGamesRunning = function(ipAddresses) {
+  var checkGamesRunning = function(response) {
     // Check each ipAddress returned.
+    var ipAddresses = response.gameIps;
     var runningHFTs = [];
     var names = {};
     var numChecked = 0;
+    totalThingsToDo = ipAddresses.length;
+    totalThingsDone = 0;
 
     var checkNextHFT = function() {
       if (numChecked === ipAddresses.length) {
         progressBar.show(false);
         if (runningHFTs.length === 0) {
-          // There was nothing, start scanning
-          getIpAddress();
+          handleCouldNotFind();
         } else if (runningHFTs.length === 1) {
           goToUrl(makeUrlFromHFT(runningHFTs[0]));
         } else {
           askPlayerWhichHFT(runningHFTs);
         }
         return;
+      } else {
+        totalThingsDone = numChecked;
+        updateProgress();
       }
 
       var ipAddress = ipAddresses[numChecked++];
@@ -218,10 +212,6 @@ requirejs(
     }
   };
 
-  var checkGoodResponse = function(url) {
-    goToUrl(makeUrl(url));
-  };
-
   var makeHFTPingRequest = function(ipAndPort, fn) {
     var url = "http://" + ipAndPort;
     IO.sendJSON(url, {cmd: 'happyFunTimesPing'}, function(err, obj) {
@@ -237,11 +227,6 @@ requirejs(
     }, { timeout: timeout });
   };
 
-  var startScan = function(ipAddress, fn) {
-    ++numRequestsInProgress;
-    var ipAndPort = ipAddress + ":" + port;
-    makeHFTPingRequest(ipAndPort, fn("http://" + ipAndPort, ipAddress));
-  };
 });
 
 
