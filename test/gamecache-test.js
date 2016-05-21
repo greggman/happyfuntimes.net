@@ -121,6 +121,49 @@ describe('GameCache', function() {
     cache.destroy();
   });
 
+  it('test we can add and retrieve ipv6 address', function() {
+    var cache = new GameCache();
+
+    var externalIp = "2001:db8::1234";
+    var internalIp1 = "[2001:db8:5678]:2345";
+    var internalIp2 = "[2001:db8:5678]:3456";
+
+    cache.addExternalIpToInternalIpGame(externalIp, internalIp1);
+    cache.addExternalIpToInternalIpGame(externalIp, internalIp2);
+
+    var ips = cache.getInternalIpsForExternalIp(externalIp);
+    ips.length.should.equal(2);
+    ips.should.containEql(internalIp1);
+    ips.should.containEql(internalIp2);
+
+    // It's 34 because we are doing subnets
+    cache.getInfo().numGames.should.equal(34);
+
+    cache.destroy();
+  });
+
+  it('test we can add and retrieve different games for different ipv6 address', function() {
+    var cache = new GameCache();
+
+    var externalIp1 = "2001:db8:1::1234";
+    var externalIp2 = "2001:db8:2::1234";
+    var internalIp1 = "[2001:db8:5678]:2345";
+    var internalIp2 = "[2001:db8:5678]:3456";
+
+    cache.addExternalIpToInternalIpGame(externalIp1, internalIp1);
+    cache.addExternalIpToInternalIpGame(externalIp2, internalIp2);
+
+    var ips = cache.getInternalIpsForExternalIp(externalIp1);
+    ips.length.should.equal(1);
+    ips.should.containEql(internalIp1);
+
+    var ips = cache.getInternalIpsForExternalIp(externalIp2);
+    ips.length.should.equal(1);
+    ips.should.containEql(internalIp2);
+
+    cache.destroy();
+  });
+
   describe("expiration", function() {
     var currentTime = 0;
     var intervalFn;
