@@ -36,7 +36,7 @@ var log = require('./lib/log');
 
 var g = {
   port: parseInt(process.env.HFT_PORT || 1337),
-  address: process.env.HFT_ADDRESS || '127.0.0.1',
+  address: process.env.HFT_ADDRESS || '::ffff:127.0.0.1',
 };
 
 var server = new Server({rootPath: "public"});
