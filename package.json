@@ -25,6 +25,7 @@
   "homepage": "https://github.com/greggman/happyfuntimes.net",
   "dependencies": {
     "body-parser": "^1.10.0",
+    "debug": "^2.2.0",
     "express": "^4.6.1",
     "forever": "^0.14.1",
     "ip6addr": "git+https://github.com/joyent/node-ip6addr.git#44a4949",
