@@ -1,8 +1,6 @@
 TODO
 ====
 
-* ipv6
-    *   match by prefix. Start at the smallest prefix and work backward?
 * Make HFT.net handle making DNS names and redirecting
 
     *  local machine pings hft.net
@@ -22,3 +20,10 @@ TODO
 * Make HFT.net get certificates
     *   HFT pings HFT.net with key
     *
+
+DONE
+====
+
+* ipv6
+    *   match by prefix. Start at the smallest prefix and work backward?
+
