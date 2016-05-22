@@ -351,6 +351,76 @@ describe("server", function() {
         res.body.should.containEql("1.2.3.4:2345");
       }).then(done, done);
     });
+
+    it("getGames2 should return 1 ips each if 2 informs with same different ip addresses", function(done) {
+      var headers1 = { 'x-forwarded-for': '2.2.2.2' };
+      var headers2 = { 'x-forwarded-for': '3.3.3.3' };
+      postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.4"], port: "2345"}, headers1).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/inform2", {addresses:["1.2.3.5"], port: "2345"}, headers2);
+      }).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames2", {}, headers1);
+      }).then(function(res) {
+        res.body.gameIps.should.be.instanceof(Array);
+        res.body.gameIps.should.be.length(1);
+        res.body.gameIps.should.containEql("1.2.3.4:2345");
+        res.body.publicIps.should.be.instanceof(Array);
+        res.body.publicIps.should.be.length(1);
+        res.body.publicIps.should.containEql("2.2.2.2");
+        return postP("http://localhost:8080/api/getgames2", {}, headers2);
+      }).then(function(res) {
+        res.body.gameIps.should.be.instanceof(Array);
+        res.body.gameIps.should.be.length(1);
+        res.body.gameIps.should.containEql("1.2.3.5:2345");
+        res.body.publicIps.should.be.instanceof(Array);
+        res.body.publicIps.should.be.length(1);
+        res.body.publicIps.should.containEql("3.3.3.3");
+      }).then(done, done);
+    });
+
+    it("getGames2 should return ip if 1 inform ipv6 test 2", function(done) {
+      var headers = { 'x-forwarded-for': '2001:db86:0:d0::693:9005' };
+      postP("http://localhost:8080/api/inform2", {addresses:["[2001:db86:0:d0::691:9001]"], port: "4455"}, headers).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames2", {}, headers);
+      }).then(function(res) {
+        res.body.gameIps.should.be.instanceof(Array);
+        res.body.gameIps.should.be.length(1);
+        res.body.gameIps.should.containEql("[2001:db86:0:d0::691:9001]:4455");
+        res.body.publicIps.should.be.instanceof(Array);
+        res.body.publicIps.should.be.length(1);
+        res.body.publicIps.should.containEql("2001:db86:0:d0::693:9005");
+      }).then(done, done);
+    });
+
+    it("getGames2 should return 1 ip each if 2 informs for 2 ipv6", function(done) {
+      var headers1 = { 'x-forwarded-for': '2001:db86:0:d0::693:9005' };
+      var headers2 = { 'x-forwarded-for': '2001:db86:0:d1::693:9005' };
+      postP("http://localhost:8080/api/inform2", {addresses:["[2001:db86:0:d0::691:9001]"], port: "4455"}, headers1).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/inform2", {addresses:["[2001:db86:0:d0::691:9004]"], port: "4455"}, headers2);
+      }).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames2", {}, headers1);
+      }).then(function(res) {
+        res.body.gameIps.should.be.instanceof(Array);
+        res.body.gameIps.should.be.length(1);
+        res.body.gameIps.should.containEql("[2001:db86:0:d0::691:9001]:4455");
+        res.body.publicIps.should.be.instanceof(Array);
+        res.body.publicIps.should.be.length(1);
+        res.body.publicIps.should.containEql("2001:db86:0:d0::693:9005");
+        return postP("http://localhost:8080/api/getgames2", {}, headers2);
+      }).then(function(res) {
+        res.body.gameIps.should.be.instanceof(Array);
+        res.body.gameIps.should.be.length(1);
+        res.body.gameIps.should.containEql("[2001:db86:0:d0::691:9004]:4455");
+        res.body.publicIps.should.be.instanceof(Array);
+        res.body.publicIps.should.be.length(1);
+        res.body.publicIps.should.containEql("2001:db86:0:d1::693:9005");
+      }).then(done, done);
+    });
+
   });
 });
 
