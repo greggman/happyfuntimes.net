@@ -278,6 +278,21 @@ describe("server", function() {
 
   });
 
+  describe("inform2-ipv6-brackets", function() {
+
+    it("getGames should return ipv6 if 1 ipv6 inform", function(done) {
+      postP("http://localhost:8080/api/inform2", {addresses:["[123::456]"], port: "4567"}).then(function(res) {
+        res.body.ip.length.should.be.above(6);
+        return postP("http://localhost:8080/api/getgames");
+      }).then(function(res) {
+        res.body.should.be.instanceof(Array);
+        res.body.should.be.length(1);
+        res.body.should.containEql("[123::456]:4567");
+      }).then(done, done);
+    });
+
+  });
+
   describe("getGames2", function() {
 
     it("getGames2 should return ip if 1 inform", function(done) {
