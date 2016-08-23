@@ -7,14 +7,14 @@ module.exports = function(grunt) {
         'public/*',
     ],
     eslint: {
-        target: [
+        src: [
           'src/scripts',
           'lib',
           'server.js',
         ],
         options: {
-            config: 'build/conf/eslint.json',
-            rulesdir: ['build/rules'],
+            configFile: 'build/conf/eslint.json',
+            //rulesdir: ['build/rules'],
         },
     },
   });
