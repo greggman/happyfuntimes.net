@@ -49,9 +49,23 @@ requirejs(
     './strings',
   ], function(Cookie, IO, IPUtils, misc, ProgressBar, Strings) {
   var $ = document.getElementById.bind(document);
+  var logElem = $("debug");
+
+  function logToScreen() {
+    console.log(str); // eslint-disable-line
+    var str = [].join.call(arguments, " ");
+    var div = document.createElement("div");
+    div.textContent = str;
+    logElem.appendChild(div);
+  }
+
+  function getLogToScreen() {
+    logElem.style.display = "block";
+    return logToScreen;
+  }
 
   var g = misc.parseUrlQuery();
-  var log = (g.debug || g.verbose) ? console.log.bind(console) : function() { };
+  var log = (g.debug || g.verbose) ? getLogToScreen() : function() { };
 
   var getGamesUrl = window.location.origin + "/api/getgames2";
   if (g.debug) {

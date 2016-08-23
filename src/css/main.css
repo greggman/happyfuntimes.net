@@ -53,6 +53,17 @@ h1 {
     color: black;
     padding: 1em;
 }
+#debug {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 5em 1em 1em 1em;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.9);
+    font-family: monospace;
+}
+
 .hidden {
     display: none;
 }
