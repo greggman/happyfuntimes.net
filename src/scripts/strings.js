@@ -134,7 +134,7 @@ define(function() {
             return obj;
           }
         }
-        console.error("unknown key: " + key);
+        console.error("unknown key: " + key);  // eslint-disable-line
         return "%(" + key + ")s";
       });
     };

@@ -80,7 +80,7 @@ define(function() {
     };
     var handleFinish = function() {
       log("--finish--");
-      var json = undefined;
+      var json;
       // HTTP reports success with a 200 status. The file protocol reports
       // success with zero. HTTP does not use zero as a status code (they
       // start at 100).

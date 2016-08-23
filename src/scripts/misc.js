@@ -99,8 +99,8 @@ define(function() {
       }
       var query = str.substring(q + 1, e);
       dst = searchStringToObject(query, dst);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);  // eslint-disable-line
     }
     return dst;
   };
@@ -160,6 +160,7 @@ define(function() {
         }
       }
     }
+    return undefined;
   };
 
   var createTextNode = function(element) {
@@ -232,6 +233,7 @@ define(function() {
       canvas.height = height;
       return true;
     }
+    return false;
   };
 
   return {

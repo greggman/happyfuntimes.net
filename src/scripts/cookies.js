@@ -63,6 +63,7 @@ define(function() {
           return decodeURIComponent(c.substring(nameEQ.length, c.length));
         }
       }
+      return undefined;
     };
 
     this.erase = function() {

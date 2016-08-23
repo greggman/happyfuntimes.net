@@ -66,7 +66,7 @@ define(function() {
   };
 
   var grepSPD = function(sdp) {
-    sdp.split('\r\n').forEach(function (line) {
+    sdp.split('\r\n').forEach(function(line) {
       var parts;
       var addr;
       if (~line.indexOf("a=candidate")) {
@@ -95,7 +95,7 @@ define(function() {
     if (window.mozRTCPeerConnection) {  // FF needs a channel/stream to proceed
       pc.createDataChannel('', {reliable:false});
     }
-    pc.onicecandidate = function (evt) {
+    pc.onicecandidate = function(evt) {
       if (evt.candidate) {
         grepSPD(evt.candidate.candidate);
       }
@@ -105,11 +105,11 @@ define(function() {
       }
     };
 
-    pc.createOffer(function (offerDesc) {
+    pc.createOffer(function(offerDesc) {
         grepSPD(offerDesc.sdp);
         pc.setLocalDescription(offerDesc);
         decrementCallbacksNeededToFinish();
-      }, function (/* e */) {
+      }, function(/* e */) {
         decrementCallbacksNeededToFinish();
       });
   } else {
