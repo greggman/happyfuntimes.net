@@ -38,7 +38,7 @@ describe('GameCache', function() {
     var cache = new GameCache();
 
     var externalIp = "1.2.3.4";
-    var internalIp = "4.5.6.7:2345";
+    var internalIp = "10.5.6.7:2345";
 
     cache.addExternalIpToInternalIpGame(externalIp, internalIp);
 
@@ -55,8 +55,8 @@ describe('GameCache', function() {
     var cache = new GameCache();
 
     var externalIp = "1.2.3.4";
-    var internalIp1 = "4.5.6.7:2345";
-    var internalIp2 = "5.6.7.8:3456";
+    var internalIp1 = "10.5.6.7:2345";
+    var internalIp2 = "10.6.7.8:3456";
 
     cache.addExternalIpToInternalIpGame(externalIp, internalIp1);
     cache.addExternalIpToInternalIpGame(externalIp, internalIp2);
@@ -76,8 +76,8 @@ describe('GameCache', function() {
 
     var externalIp1 = "1.2.3.4";
     var externalIp2 = "1.2.3.5";
-    var internalIp1 = "4.5.6.7:2345";
-    var internalIp2 = "5.6.7.8:3456";
+    var internalIp1 = "10.5.6.7:2345";
+    var internalIp2 = "10.6.7.8:3456";
 
     cache.addExternalIpToInternalIpGame(externalIp1, internalIp1);
     cache.addExternalIpToInternalIpGame(externalIp2, internalIp2);
@@ -99,7 +99,7 @@ describe('GameCache', function() {
     var cache = new GameCache();
 
     var externalIp = "1.2.3.4";
-    var internalIp = "4.5.6.7:2345";
+    var internalIp = "10.5.6.7:2345";
 
     cache.addExternalIpToInternalIpGame(externalIp, internalIp);
     cache.addExternalIpToInternalIpGame(externalIp, internalIp);
@@ -117,8 +117,8 @@ describe('GameCache', function() {
     var cache = new GameCache();
 
     var externalIp = "1.2.3.4";
-    var internalIp1 = "4.5.6.7:2345";
-    var internalIp2 = "4.5.6.7:3456";
+    var internalIp1 = "10.5.6.7:2345";
+    var internalIp2 = "10.5.6.7:3456";
 
     cache.addExternalIpToInternalIpGame(externalIp, internalIp1);
     cache.addExternalIpToInternalIpGame(externalIp, internalIp2);
@@ -149,8 +149,8 @@ describe('GameCache', function() {
     var cache = new GameCache();
 
     var externalIp = "2001:db8::1234";
-    var internalIp1 = "[2001:db8:5678]:2345";
-    var internalIp2 = "[2001:db8:5678]:3456";
+    var internalIp1 = "[F001:db8:5678]:2345";
+    var internalIp2 = "[F001:db8:5678]:3456";
 
     cache.addExternalIpToInternalIpGame(externalIp, internalIp1);
     cache.addExternalIpToInternalIpGame(externalIp, internalIp2);
@@ -171,8 +171,8 @@ describe('GameCache', function() {
 
     var externalIp1 = "2001:db8:1::1234";
     var externalIp2 = "2001:db8:2::1234";
-    var internalIp1 = "[2001:db8:5678]:2345";
-    var internalIp2 = "[2001:db8:5678]:3456";
+    var internalIp1 = "[F001:db8:5678]:2345";
+    var internalIp2 = "[F001:db8:5678]:3456";
 
     cache.addExternalIpToInternalIpGame(externalIp1, internalIp1);
     cache.addExternalIpToInternalIpGame(externalIp2, internalIp2);
@@ -187,6 +187,27 @@ describe('GameCache', function() {
 
     cache.destroy();
   });
+
+//  it('test specific addresses - 001', function() {
+//    var cache = new GameCache();
+//
+//    var computerInternalIp1 = "2601:204:c702:5f87:3d3d:d184:f486:1e8a";
+//    var computerInternalIp2 = "10.0.0.97";
+//    var internalIp2 = "2601:204:c702:5f87:c540:9c94:3c2c:7d45";  // phone?
+//
+//    cache.addExternalIpToInternalIpGame(externalIp1, computerInternalIp1);
+//    cache.addExternalIpToInternalIpGame(externalIp2, computerInternalIp2);
+//
+//    var ips = cache.getInternalIpsForExternalIp(externalIp1);
+//    ips.length.should.equal(1);
+//    ips.should.containEql(internalIp1);
+//
+//    var ips = cache.getInternalIpsForExternalIp(externalIp2);
+//    ips.length.should.equal(1);
+//    ips.should.containEql(internalIp2);
+//
+//    cache.destroy();
+//  });
 
   describe("expiration", function() {
     var currentTime = 0;
@@ -213,8 +234,8 @@ describe('GameCache', function() {
       });
 
       var externalIp = "1.2.3.4";
-      var internalIp1 = "4.5.6.7:2345";
-      var internalIp2 = "5.6.7.8:3456";
+      var internalIp1 = "10.5.6.7:2345";
+      var internalIp2 = "10.6.7.8:3456";
 
       currentTime = 1;
       cache.addExternalIpToInternalIpGame(externalIp, internalIp1);
@@ -254,8 +275,8 @@ describe('GameCache', function() {
       });
 
       var externalIp = "1.2.3.4";
-      var internalIp1 = "4.5.6.7:2345";
-      var internalIp2 = "5.6.7.8:3456";
+      var internalIp1 = "10.5.6.7:2345";
+      var internalIp2 = "10.6.7.8:3456";
 
       currentTime = 1;
       cache.addExternalIpToInternalIpGame(externalIp, internalIp1);
