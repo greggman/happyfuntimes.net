@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "grunt"
   },
   "repository": {
     "type": "git",
