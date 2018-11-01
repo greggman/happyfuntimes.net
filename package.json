@@ -1,6 +1,6 @@
 {
   "name": "happyfuntimes.net",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Redirects players to their local happyfuntimes game",
   "main": "server.js",
   "scripts": {
