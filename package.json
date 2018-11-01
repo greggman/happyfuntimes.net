@@ -4,7 +4,7 @@
   "description": "Redirects players to their local happyfuntimes game",
   "main": "server.js",
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha",
+    "test": "node node_modules/mocha/bin/mocha --exit",
     "start": "node server.js",
     "build": "grunt"
   },
