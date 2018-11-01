@@ -118,7 +118,7 @@ requirejs(
     log("hft response: " + JSON.stringify(obj));
     // It was bad
     if (err) {
-      consle.error(err);  // eslint-disable-line
+      console.error(err);  // eslint-disable-line
       handleCouldNotFind();
       return;
     }
