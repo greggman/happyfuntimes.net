@@ -112,7 +112,7 @@ define(function() {
    * @memberOf module:Strings
    */
   var replaceParams = (function() {
-    var replaceParamsRE = /%\(([^\)]+)\)s/g;
+    var replaceParamsRE = /%\(([^)]+)\)s/g;
 
     return function(str, params) {
       if (!params.length) {

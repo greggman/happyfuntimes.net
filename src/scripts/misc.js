@@ -120,7 +120,7 @@ define(function() {
   // @param {object} opt_obj object to apply settings to.
   // @param {string} opt_argumentName name of key for settings, default = 'settings'.
   // @return {object} object with settings
-  var fixKeysRE = new RegExp("([a-zA-Z0-9_]+)\:", "g");
+  var fixKeysRE = new RegExp("([a-zA-Z0-9_]+):", "g");
 
   var applyUrlSettings = function(opt_obj, opt_argumentName) {
     var argumentName = opt_argumentName || 'settings';
